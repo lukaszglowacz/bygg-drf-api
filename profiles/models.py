@@ -8,8 +8,8 @@ personnummer_regex = RegexValidator(regex=r'^\d{6}-\d{4}$', message='XXXXXX-XXXX
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
     personnummer = models.CharField(max_length=11, unique=True, validators=[personnummer_regex])
     image = models.ImageField(upload_to='images/', default='../default_profile_l2i70s')
     created_at = models.DateTimeField(auto_now_add=True)
