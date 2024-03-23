@@ -1,8 +1,19 @@
 from rest_framework import serializers
-from .models import Profile
+from .models import Profile, WorkSession, Workplace
 
 class ProfileSerializer(serializers.ModelSerializer):
+    total_work_hours = serializers.SerializerMethodField()
+    workplaces_list = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
         fields = '__all__'
+
+    def get_total_work_hours(self, obj):
+        #Zwraca laczna ilosc przepracowanych godzin przez uzytkownika
+        return obj.total_work_hours()
+    
+    def get_workplaces_list(self, obj):
+        #Zwraca liste unikalnych miejsc, w ktorych przepracowal uzytkownik
+        workplaces = obj.total_workplaces()
+        return [f"{workplace.street} {workplace.street_number}, {workplace.postal_code} {workplace.city}" for workplace in workplaces]
