@@ -1,10 +1,14 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
-from datetime import timedelta
+from django.conf import settings
+
+
 
 class WorkSession(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
     workplace = models.ForeignKey('workplace.WorkPlace', on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()

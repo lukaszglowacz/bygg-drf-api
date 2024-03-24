@@ -5,11 +5,15 @@ from django.dispatch import receiver
 from django.core.validators import RegexValidator
 from workplace.models import Workplace
 from worksession.models import WorkSession
+from django.conf import settings
 
 personnummer_regex = RegexValidator(regex=r'^\d{6}-\d{4}$', message='XXXXXX-XXXX')
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     personnummer = models.CharField(max_length=11, unique=True, validators=[personnummer_regex])
