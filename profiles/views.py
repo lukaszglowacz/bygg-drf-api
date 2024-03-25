@@ -5,6 +5,8 @@ from drf_api.permissions import IsOwnerOrReadOnly, IsEmployer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from .serializers import UserRegistrationSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import ProfileFilter
 
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
@@ -13,6 +15,9 @@ class UserRegistrationView(generics.CreateAPIView):
 class ProfileList(ListCreateAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProfileFilter
+
     def get_queryset(self):
         if self.request.user.is_employer:
             return Profile.objects.all()
