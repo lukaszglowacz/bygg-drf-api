@@ -23,4 +23,4 @@ class WorkSession(models.Model):
         super(WorkSession, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user.username} - {self.workplace.name} - {self.start_time.strftime('%Y-%m-%d %H:%M')}"
+        return f"{self.user} - {self.workplace.street} {self.workplace.street_number}, {self.workplace.postal_code} {self.workplace.city} - {self.start_time.strftime('%Y-%m-%d %H:%M')}"

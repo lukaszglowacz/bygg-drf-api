@@ -1,24 +1,61 @@
 from rest_framework import serializers
-from .models import Profile, WorkSession, Workplace
+from .models import Profile
+from django.contrib.auth import get_user_model
+
 
 class ProfileSerializer(serializers.ModelSerializer):
-    total_work_hours = serializers.SerializerMethodField()
-    workplaces_list = serializers.SerializerMethodField()
-    user_email = serializers.SerializerMethodField()
-    
+    user_email = serializers.EmailField(source='user.email', read_only=True)
 
     class Meta:
         model = Profile
-        fields = ['id', 'total_work_hours', 'workplaces_list', 'first_name', 'last_name', 'personnummer', 'image', 'created_at', 'updated_at', 'user_email']
+        fields = [
+            'id',
+            'user_email', 
+            'first_name',
+            'last_name',
+            'personnummer',
+            'created_at', 
+            'updated_at',
+            'image'
+        ]
+        read_only_fields = ['user']
 
-    def get_total_work_hours(self, obj):
-        #Zwraca laczna ilosc przepracowanych godzin przez uzytkownika
-        return obj.total_work_hours()
-    
-    def get_workplaces_list(self, obj):
-        #Zwraca liste unikalnych miejsc, w ktorych przepracowal uzytkownik
-        workplaces = obj.total_workplaces()
-        return [f"{workplace.street} {workplace.street_number}, {workplace.postal_code} {workplace.city}" for workplace in workplaces]
-    
-    def get_user_email(self, obj):
-        return obj.user.email
+
+User = get_user_model()
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
+    first_name = serializers.CharField(write_only=True, required=True)
+    last_name = serializers.CharField(write_only=True, required=True)
+    personnummer = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ('email', 'password', 'first_name', 'last_name', 'personnummer')
+
+    def validate_personnummer(self, value):
+        """
+        Sprawdza, czy personnummer jest unikalny.
+        """
+        if Profile.objects.filter(personnummer=value).exists():
+            raise serializers.ValidationError("Ten personnummer jest już używany.")
+        return value
+
+    def create(self, validated_data):
+        # Tworzenie użytkownika
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        
+        # Tworzenie profilu z dodatkowymi danymi
+        Profile.objects.create(
+            user=user,
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            personnummer=validated_data['personnummer']
+        )
+        
+        return user
+
+
