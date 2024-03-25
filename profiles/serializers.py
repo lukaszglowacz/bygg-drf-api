@@ -6,6 +6,10 @@ from django.contrib.auth import get_user_model
 class ProfileSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email', read_only=True)
 
+    # Formatowanie pól daty/godziny
+    created_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M', read_only=True)
+    updated_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M', read_only=True)
+
     class Meta:
         model = Profile
         fields = [
