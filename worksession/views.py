@@ -1,13 +1,20 @@
 from django.db.models.functions import TruncMonth, ExtractWeek, ExtractYear
 from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
 from .models import WorkSession
 from .serializers import WorkSessionSerializer
 from drf_api.permissions import IsOwnerOrReadOnly, IsEmployer
 from rest_framework.permissions import IsAuthenticated
 
+class WorkSessionPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class WorkSessionListCreateView(generics.ListCreateAPIView):
     serializer_class = WorkSessionSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = WorkSessionPagination
 
     def get_queryset(self):
         user = self.request.user
@@ -21,6 +28,11 @@ class WorkSessionListCreateView(generics.ListCreateAPIView):
         month = self.request.query_params.get('month')
         week = self.request.query_params.get('week')
         day = self.request.query_params.get('day')
+        username = self.request.query_params.get('username')
+
+        #Filtracja po uzytkowniku
+        if username:
+            queryset = queryset.filter(user__username=username)
 
         # Filtracja po miesiącu
         if month:
