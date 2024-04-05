@@ -3,7 +3,7 @@ from rest_framework import generics, permissions
 from rest_framework.pagination import PageNumberPagination
 from .models import WorkSession
 from .serializers import WorkSessionSerializer
-from drf_api.permissions import IsOwnerOrReadOnly, IsEmployer, IsEmployeeOrReadOnly
+from drf_api.permissions import IsEmployer, IsEmployee, WorkHourPermissions, WorkPlacePermissions
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import WorkSessionFilter
@@ -17,7 +17,7 @@ from django.utils import timezone
 
 class MonthlyWorkSessionSummary(APIView):
     # Definiowanie klas uprawnień
-    permission_classes = [permissions.IsAuthenticated, IsEmployer | IsEmployeeOrReadOnly]
+    permission_classes = [IsAuthenticated, IsEmployer, IsEmployee, WorkHourPermissions, WorkPlacePermissions]
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -52,7 +52,7 @@ class MonthlyWorkSessionSummary(APIView):
 
 class WeeklyWorkSessionSummary(APIView):
     # Definiowanie klas uprawnień
-    permission_classes = [permissions.IsAuthenticated, IsEmployer | IsEmployeeOrReadOnly]
+    permission_classes = [IsAuthenticated, IsEmployer, IsEmployee, WorkHourPermissions, WorkPlacePermissions]
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -87,7 +87,7 @@ class WeeklyWorkSessionSummary(APIView):
 
 class DailyWorkSessionSummary(APIView):
     # Definiowanie klas uprawnień
-    permission_classes = [permissions.IsAuthenticated, IsEmployer | IsEmployeeOrReadOnly]
+    permission_classes = [IsAuthenticated, IsEmployer, IsEmployee, WorkHourPermissions, WorkPlacePermissions]
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -136,7 +136,7 @@ class WorkSessionPagination(PageNumberPagination):
 
 class WorkSessionListCreateView(generics.ListCreateAPIView):
     serializer_class = WorkSessionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmployee, IsEmployer, WorkHourPermissions]
     pagination_class = WorkSessionPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = WorkSessionFilter
@@ -153,17 +153,11 @@ class WorkSessionListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    def get_permissions(self):
-        if self.request.method == 'POST':
-            self.permission_classes = [IsOwnerOrReadOnly, IsEmployer]
-        else:
-            self.permission_classes = [IsOwnerOrReadOnly | IsEmployer]
-        return super().get_permissions()
 
 class WorkSessionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = WorkSession.objects.all()
     serializer_class = WorkSessionSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly | IsEmployer]
+    permission_classes = [IsAuthenticated, IsEmployee, IsEmployer, WorkHourPermissions]
 
     def get_queryset(self):
         user = self.request.user

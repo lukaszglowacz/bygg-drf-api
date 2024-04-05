@@ -1,7 +1,7 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from .models import Profile
 from .serializers import ProfileSerializer
-from drf_api.permissions import IsOwnerOrReadOnly, IsEmployer
+from drf_api.permissions import IsEmployer, IsOwnerOrEmployer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, permissions
 from .serializers import UserRegistrationSerializer
@@ -24,11 +24,12 @@ class ProfileList(ListCreateAPIView):
             return Profile.objects.all()
         else:
             return Profile.objects.filter(user=self.request.user)
+        
 
 class ProfileDetail(RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly|IsEmployer]
+    permission_classes = [IsAuthenticated, IsOwnerOrEmployer]
 
     #Uzytkownik moze przegladac jedynie swoj profil
     def get_queryset(self):
