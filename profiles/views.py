@@ -3,13 +3,14 @@ from .models import Profile
 from .serializers import ProfileSerializer
 from drf_api.permissions import IsOwnerOrReadOnly, IsEmployer
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import generics
+from rest_framework import generics, permissions
 from .serializers import UserRegistrationSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ProfileFilter
 
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
+    permission_classes = [ permissions.AllowAny ]
 
 
 class ProfileList(ListCreateAPIView):

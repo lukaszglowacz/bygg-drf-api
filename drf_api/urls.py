@@ -7,7 +7,7 @@ from profiles.views import UserRegistrationView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('profiles/', include('profiles.urls')),
+    path('profile/', include('profiles.urls')),
     path('workplace/', include('workplace.urls')),
     path('worksession/', include('worksession.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

@@ -1,5 +1,5 @@
 from django.db.models.functions import TruncMonth, TruncDay, ExtractWeek, ExtractYear
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.pagination import PageNumberPagination
 from .models import WorkSession
 from .serializers import WorkSessionSerializer
@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from calendar import month_name
 import datetime
 from collections import defaultdict
-from rest_framework import permissions
+from django.utils import timezone
 
 class MonthlyWorkSessionSummary(APIView):
     # Definiowanie klas uprawnień
@@ -143,8 +143,12 @@ class WorkSessionListCreateView(generics.ListCreateAPIView):
 
 
     def get_queryset(self):
-        # Teraz zwracamy wszystkie sesje pracy bez filtracji
-        return WorkSession.objects.all()
+        user = self.request.user
+        if user.is_employer:
+            return WorkSession.objects.all()
+        else:
+            return WorkSession.objects.filter(user=user)
+
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
