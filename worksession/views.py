@@ -151,7 +151,8 @@ class WorkSessionListCreateView(generics.ListCreateAPIView):
 
     
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        # Ustawienie użytkownika na podstawie przekazanego user_id zamiast request.user
+        serializer.save(user_id=self.request.data.get('user'))
 
 
 class WorkSessionDetailView(generics.RetrieveUpdateDestroyAPIView):
