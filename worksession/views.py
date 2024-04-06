@@ -17,7 +17,7 @@ from django.utils import timezone
 
 class MonthlyWorkSessionSummary(APIView):
     # Definiowanie klas uprawnień
-    permission_classes = [IsAuthenticated, IsEmployer, IsEmployee, WorkHourPermissions, WorkPlacePermissions]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -52,7 +52,7 @@ class MonthlyWorkSessionSummary(APIView):
 
 class WeeklyWorkSessionSummary(APIView):
     # Definiowanie klas uprawnień
-    permission_classes = [IsAuthenticated, IsEmployer, IsEmployee, WorkHourPermissions, WorkPlacePermissions]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -87,7 +87,7 @@ class WeeklyWorkSessionSummary(APIView):
 
 class DailyWorkSessionSummary(APIView):
     # Definiowanie klas uprawnień
-    permission_classes = [IsAuthenticated, IsEmployer, IsEmployee, WorkHourPermissions, WorkPlacePermissions]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -136,7 +136,7 @@ class WorkSessionPagination(PageNumberPagination):
 
 class WorkSessionListCreateView(generics.ListCreateAPIView):
     serializer_class = WorkSessionSerializer
-    permission_classes = [IsAuthenticated, IsEmployee, IsEmployer, WorkHourPermissions]
+    permission_classes = [IsAuthenticated]
     pagination_class = WorkSessionPagination
     filter_backends = [DjangoFilterBackend]
     filterset_class = WorkSessionFilter
@@ -157,7 +157,7 @@ class WorkSessionListCreateView(generics.ListCreateAPIView):
 class WorkSessionDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = WorkSession.objects.all()
     serializer_class = WorkSessionSerializer
-    permission_classes = [IsAuthenticated, IsEmployee, IsEmployer, WorkHourPermissions]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user

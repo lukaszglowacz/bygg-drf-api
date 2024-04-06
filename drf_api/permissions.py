@@ -56,12 +56,11 @@ class WorkHourPermissions(permissions.BasePermission):
 
 class IsOwnerOrEmployer(permissions.BasePermission):
     """
-    Pozwala na dostęp do obiektu tylko dla jego właściciela lub pracodawcy.
+    Pozwala użytkownikowi modyfikować własny profil oraz pozwala pracodawcom na modyfikowanie dowolnego profilu.
     """
-
     def has_object_permission(self, request, view, obj):
-        # Właściciel obiektu zawsze ma dostęp
-        if obj.user == request.user:
+        # Pracodawcy mogą edytować każdy profil
+        if request.user.is_employer:
             return True
-        # Pracodawcy mają dostęp do wszystkich obiektów
-        return request.user.is_employer
+        # Użytkownicy mogą edytować tylko swój profil
+        return obj.user == request.user

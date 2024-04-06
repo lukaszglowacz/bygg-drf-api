@@ -31,7 +31,11 @@ class ProfileDetail(RetrieveUpdateDestroyAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrEmployer]
 
-    #Uzytkownik moze przegladac jedynie swoj profil
     def get_queryset(self):
         user = self.request.user
-        return Profile.objects.filter(user=user)
+        if user.is_employer:
+            # Pracodawcy mają dostęp do wszystkich profili
+            return Profile.objects.all()
+        else:
+            # Zwykli użytkownicy mogą zobaczyć tylko swój profil
+            return Profile.objects.filter(user=user)
