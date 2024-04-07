@@ -4,6 +4,8 @@ from .models import LiveSession
 from .serializers import LiveSessionSerializer
 from django.utils import timezone
 from worksession.models import WorkSession
+from django.db import transaction
+from rest_framework.permissions import IsAuthenticated
 
 class StartLiveSessionView(generics.CreateAPIView):
     queryset = LiveSession.objects.all()
@@ -18,23 +20,34 @@ class EndLiveSessionView(generics.UpdateAPIView):
     serializer_class = LiveSessionSerializer
     
     def perform_update(self, serializer):
-        session = serializer.instance
-        session.end_time = timezone.now()
-        session.status = 'Zakonczona'
-        session.save()
+        with transaction.atomic():
+            session = serializer.instance
+            session.end_time = timezone.now()
+            session.status = 'Zakonczona'
+            session.save()
         
-        #Przeniesiemy rekord do Worksession
-        WorkSession.objects.create(
-            user = session.user,
-            workplace = session.workplace,
-            start_time = session.start_time,
-            end_time = session.end_time
+            #Przeniesiemy rekord do Worksession
+            WorkSession.objects.create(
+                user = session.user,
+                workplace = session.workplace,
+                start_time = session.start_time,
+                end_time = session.end_time
         )
         #Usun rekord z LiveSession
         session.delete()
         
 class ActiveLiveSessionsView(generics.ListAPIView):
-    queryset = LiveSession.objects.filter(status='Trwa')
     serializer_class = LiveSessionSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_employer:
+            # Pracodawca widzi wszystkie aktywne sesje
+            return LiveSession.objects.filter(status='Trwa')
+        else:
+            # Pracownik widzi tylko swoje aktywne sesje
+            return LiveSession.objects.filter(status='Trwa', user=user)
+    
     
 
