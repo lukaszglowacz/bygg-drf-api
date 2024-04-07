@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'workplace',
     'worksession',
     'accounts',
+    'livesession',
 ]
 
 MIDDLEWARE = [
