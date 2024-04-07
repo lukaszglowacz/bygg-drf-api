@@ -24,3 +24,4 @@ class WorkSession(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.workplace.street} {self.workplace.street_number}, {self.workplace.postal_code} {self.workplace.city} - {self.start_time.strftime('%Y-%m-%d %H:%M')}"
+

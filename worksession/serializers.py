@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import WorkSession
 from workplace.models import Workplace
 from django.contrib.auth import get_user_model
+from rest_framework import serializers
 
 User = get_user_model()
 
@@ -44,3 +45,4 @@ class WorkSessionSerializer(serializers.ModelSerializer):
         # Nie jest konieczne ręczne obliczanie total_time, ponieważ jest to obsługiwane przez model
         instance.save()
         return instance
+    

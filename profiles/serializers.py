@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Profile
 from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -65,3 +67,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user_id'] = self.user.id
+        return data
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer

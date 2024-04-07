@@ -8,6 +8,9 @@ from .serializers import UserRegistrationSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ProfileFilter
 
+
+
+
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [ permissions.AllowAny ]

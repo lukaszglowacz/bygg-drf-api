@@ -1,4 +1,4 @@
-from django.db.models.functions import TruncMonth, TruncDay, ExtractWeek, ExtractYear
+from django.db.models.functions import TruncMonth, ExtractWeek, ExtractYear
 from rest_framework import generics, permissions
 from rest_framework.pagination import PageNumberPagination
 from .models import WorkSession
@@ -7,13 +7,13 @@ from drf_api.permissions import IsEmployer, IsEmployee, WorkHourPermissions, Wor
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import WorkSessionFilter
-from django.db.models import Sum, F
+from django.db.models import Sum
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from calendar import month_name
 import datetime
 from collections import defaultdict
-from django.utils import timezone
+
 
 class MonthlyWorkSessionSummary(APIView):
     # Definiowanie klas uprawnień
