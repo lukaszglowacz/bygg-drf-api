@@ -29,7 +29,7 @@ class WorkSessionListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         if self.request.user.is_employer:
             return WorkSession.objects.all().order_by('-start_time')
-        return WorkSession.objects.filter(user=self.request.user)
+        return WorkSession.objects.filter(user=self.request.user).order_by('-start_time')
 
     
     def perform_create(self, serializer):
