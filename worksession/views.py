@@ -8,6 +8,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .filters import WorkSessionFilter
 from rest_framework.response import Response
 from rest_framework import status
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.core.serializers import serialize
 
 
 class WorkSessionPagination(PageNumberPagination):
@@ -25,7 +28,7 @@ class WorkSessionListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.user.is_employer:
-            return WorkSession.objects.all()
+            return WorkSession.objects.all().order_by('-start_time')
         return WorkSession.objects.filter(user=self.request.user)
 
     

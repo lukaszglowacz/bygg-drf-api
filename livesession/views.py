@@ -44,7 +44,7 @@ class ActiveLiveSessionsView(generics.ListAPIView):
         user = self.request.user
         if user.is_employer:
             # Pracodawca widzi wszystkie aktywne sesje
-            return LiveSession.objects.filter(status='Trwa')
+            return LiveSession.objects.filter(status='Trwa').order_by('-start_time')
         else:
             # Pracownik widzi tylko swoje aktywne sesje
             return LiveSession.objects.filter(status='Trwa', user=user)
