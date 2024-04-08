@@ -5,6 +5,7 @@ class LiveSessionSerializer(serializers.ModelSerializer):
     user_first_name = serializers.CharField(source='user.profile.first_name', read_only=True)
     user_last_name = serializers.CharField(source='user.profile.last_name', read_only=True)
     workplace_detail = serializers.SerializerMethodField()
+    start_time = serializers.DateTimeField(format='%d.%m.%Y %H:%M',read_only=True)
 
     class Meta:
         model = LiveSession
