@@ -2,15 +2,13 @@ from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
 from .models import WorkSession
 from .serializers import WorkSessionSerializer
-from drf_api.permissions import IsEmployee, IsOwnerOrEmployer
-from rest_framework.permissions import IsAuthenticated
-from django_filters.rest_framework import DjangoFilterBackend
-from .filters import WorkSessionFilter
+from drf_api.permissions import IsOwnerOrEmployer
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.core.serializers import serialize
+from django.core import serializers
 
 
 class WorkSessionPagination(PageNumberPagination):
@@ -22,8 +20,7 @@ class WorkSessionListCreateView(generics.ListCreateAPIView):
     serializer_class = WorkSessionSerializer
     permission_classes = [IsOwnerOrEmployer]
     pagination_class = WorkSessionPagination
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = WorkSessionFilter
+    
 
 
     def get_queryset(self):
@@ -33,16 +30,23 @@ class WorkSessionListCreateView(generics.ListCreateAPIView):
 
     
     def perform_create(self, serializer):
+        if 'workplace' not in self.request.data:
+            raise serializers.ValidationError({"error": "Workplace jest wymagany."})
         serializer.save(user=self.request.user)
+
         
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        if 'workplace' not in request.data:
-            return Response({"error": "Workplace jest wymagany."}, status=status.HTTP_400_BAD_REQUEST)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        except serializers.ValidationError as e:
+            return Response({"error": str(e.detail)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": "Wewnętrzny błąd serwera"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class WorkSessionDetailView(generics.RetrieveUpdateDestroyAPIView):

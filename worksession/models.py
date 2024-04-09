@@ -17,11 +17,15 @@ class WorkSession(models.Model):
     def total_time(self):
         if self.start_time and self.end_time:
             delta = self.end_time - self.start_time
-            return round(delta.total_seconds() / 3600, 2)
+            hours = int(delta.total_seconds() // 3600)
+            minutes = int((delta.total_seconds() % 3600) // 60)
+            return f"{hours} tim, {minutes} min"
         elif self.start_time and not self.end_time:
             delta = timezone.now() - self.start_time
-            return round(delta.total_seconds() / 3600, 2)
-        return None
+            hours = int(delta.total_seconds() // 3600)
+            minutes = int((delta.total_seconds() % 3600) // 60)
+            return f"{hours} tim, {minutes} min"
+        return "Nieokreślony"
 
     def clean(self):
         if self.end_time and self.end_time < self.start_time:

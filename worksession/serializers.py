@@ -35,4 +35,8 @@ class WorkSessionSerializer(serializers.ModelSerializer):
     def validate_workplace(self, value):
         if not value:
             raise serializers.ValidationError("Pole 'workplace' jest wymagane.")
+    #    Sprawdzenie czy podane ID miejsca pracy istnieje w bazie danych
+        if not Workplace.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Wybrane miejsce pracy nie istnieje.")
         return value
+
