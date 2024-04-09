@@ -10,8 +10,8 @@ class WorkSessionSerializer(serializers.ModelSerializer):
     user_first_name = serializers.CharField(source='user.profile.first_name', read_only=True)
     user_last_name = serializers.CharField(source='user.profile.last_name', read_only=True)
     user_personnummer = serializers.CharField(source='user.profile.personnummer', read_only=True)
-    start_time = serializers.DateTimeField(format='%d.%m.%Y %H:%M',read_only=True)
-    end_time = serializers.DateTimeField(format='%d.%m.%Y %H:%M',read_only=True, allow_null=True, required=False)
+    start_time = serializers.DateTimeField(format='%d.%m.%Y %H:%M', required=True, allow_null=False)
+    end_time = serializers.DateTimeField(format='%d.%m.%Y %H:%M', allow_null=True, required=False)
 
     class Meta:
         model = WorkSession
