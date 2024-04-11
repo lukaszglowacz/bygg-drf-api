@@ -23,10 +23,7 @@ class ProfileList(ListCreateAPIView):
     filterset_class = ProfileFilter
 
     def get_queryset(self):
-        if self.request.user.is_employer:
-            return Profile.objects.all()
-        else:
-            return Profile.objects.filter(user=self.request.user)
+        return Profile.objects.filter(user=self.request.user)
         
 
 class ProfileDetail(RetrieveUpdateDestroyAPIView):

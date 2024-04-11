@@ -10,7 +10,7 @@ class WorkSession(models.Model):
         on_delete=models.CASCADE,
     )
     workplace = models.ForeignKey(Workplace, on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
+    start_time = models.DateTimeField(default=timezone.now)
     end_time = models.DateTimeField(null=True, blank=True)
     
     @property
