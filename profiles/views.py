@@ -18,7 +18,7 @@ class UserRegistrationView(generics.CreateAPIView):
 
 class ProfileList(ListCreateAPIView):
     serializer_class = ProfileSerializer
-    permission_classes = [IsOwnerOrEmployer]
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_class = ProfileFilter
 
@@ -29,7 +29,7 @@ class ProfileList(ListCreateAPIView):
 class ProfileDetail(RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsOwnerOrEmployer]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
