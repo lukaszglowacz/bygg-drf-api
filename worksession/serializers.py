@@ -1,42 +1,26 @@
 from rest_framework import serializers
-from .models import WorkSession
-from workplace.models import Workplace
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from .models import WorkSession, Profile, Workplace
+from profiles.serializers import ProfileSerializer
+from workplace.serializers import WorkplaceSerializer
 
 class WorkSessionSerializer(serializers.ModelSerializer):
-    workplace_detail = serializers.SerializerMethodField(read_only=True)
-    user_first_name = serializers.CharField(source='user.profile.first_name', read_only=True)
-    user_last_name = serializers.CharField(source='user.profile.last_name', read_only=True)
-    user_personnummer = serializers.CharField(source='user.profile.personnummer', read_only=True)
-    start_time = serializers.DateTimeField(format='%d.%m.%Y %H:%M', required=True, allow_null=False)
-    end_time = serializers.DateTimeField(format='%d.%m.%Y %H:%M', allow_null=True, required=False)
+    profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all())
+    workplace = serializers.PrimaryKeyRelatedField(queryset=Workplace.objects.all())
+    start_time = serializers.DateTimeField()
+    end_time = serializers.DateTimeField()
 
     class Meta:
         model = WorkSession
-        fields = [
-            'id',
-            'user',
-            'user_first_name',
-            'user_last_name',
-            'user_personnummer',
-            'workplace',
-            'workplace_detail',
-            'start_time',
-            'end_time',
-            'total_time'
-        ]
+        fields = ['id', 'profile', 'workplace', 'start_time', 'end_time', 'total_time']
+        extra_kwargs = {'total_time': {'read_only': True}}
 
-    def get_workplace_detail(self, obj):
-        workplace = obj.workplace
-        return f"{workplace.street} {workplace.street_number}, {workplace.postal_code} {workplace.city}"
-    
-    def validate_workplace(self, value):
-        if not value:
-            raise serializers.ValidationError("Pole 'workplace' jest wymagane.")
-    #    Sprawdzenie czy podane ID miejsca pracy istnieje w bazie danych
-        if not Workplace.objects.filter(id=value).exists():
-            raise serializers.ValidationError("Wybrane miejsce pracy nie istnieje.")
-        return value
+    def validate(self, data):
+        if 'end_time' in data and data.get('end_time') and data['end_time'] < data['start_time']:
+            raise serializers.ValidationError("Czas zakończenia nie może być wcześniejszy niż czas rozpoczęcia")
+        return data
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['profile'] = ProfileSerializer(instance.profile).data
+        representation['workplace'] = WorkplaceSerializer(instance.workplace).data
+        return representation
