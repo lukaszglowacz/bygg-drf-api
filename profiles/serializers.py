@@ -8,6 +8,8 @@ from django.core.exceptions import ValidationError
 from accounts.models import CustomUser
 from django.contrib.auth.password_validation import validate_password
 import re
+from django.contrib.auth import authenticate
+from django.utils.translation import gettext_lazy as _
 
 
 
@@ -130,10 +132,29 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    default_error_messages = {
+        'no_active_account': _('Nie znaleziono użytkownika z tym adresem e-mail lub nieprawidłowe hasło.')
+    }
+
     def validate(self, attrs):
-        data = super().validate(attrs)
-        data['user_id'] = self.user.id
-        return data
+        email = attrs.get('email', '')
+        password = attrs.get('password', '')
+
+        if not email:
+            raise serializers.ValidationError({'email': _('To pole nie może być puste.')})
+        if not password:
+            raise serializers.ValidationError({'password': _('To pole nie może być puste.')})
+
+        if '@' not in email:
+            raise serializers.ValidationError({'email': _('Wprowadź prawidłowy adres e-mail z znakiem "@".')})
+
+        # Uwierzytelnianie użytkownika
+        user = authenticate(request=self.context.get('request'), username=email, password=password)
+        if not user:
+            raise serializers.ValidationError({'email': _('Nie znaleziono użytkownika z tym adresem e-mail.'),
+                                               'password': _('Nieprawidłowe hasło.')})
+
+        return super().validate(attrs)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
