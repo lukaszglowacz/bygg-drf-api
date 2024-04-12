@@ -1,8 +1,6 @@
 from django.db import models
-from django.db.models.signals import post_save
 from django.core.validators import RegexValidator
 from django.conf import settings
-from django.dispatch import receiver
 from .validators import validate_image_file_size, validate_image_dimensions
 
 personnummer_regex = RegexValidator(regex=r'^\d{6}-\d{4}$', message='XXXXXX-XXXX')

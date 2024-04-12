@@ -18,8 +18,10 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractUser):
-    username = None  # Usuń pole username, jeśli nie planujesz go używać
-    email = models.EmailField(_('email address'), unique=True)
+    username = None
+    email = models.EmailField(_('email address'), unique=True, error_messages={
+        'unique': _("Ten adres email jest już używany. Proszę użyć innego adresu."),
+    })
 
     is_employer = models.BooleanField(default=False)
 
@@ -30,3 +32,4 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
