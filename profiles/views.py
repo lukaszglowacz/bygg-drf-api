@@ -6,7 +6,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, permissions
 from .serializers import UserRegistrationSerializer
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import ProfileFilter
 
 
 
@@ -19,8 +18,7 @@ class UserRegistrationView(generics.CreateAPIView):
 class ProfileList(ListCreateAPIView):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ProfileFilter
+
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
