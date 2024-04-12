@@ -3,7 +3,7 @@ from django.core.validators import RegexValidator
 from django.conf import settings
 from .validators import validate_image_file_size, validate_image_dimensions
 
-personnummer_regex = RegexValidator(regex=r'^\d{6}-\d{4}$', message='XXXXXX-XXXX')
+personnummer_regex = RegexValidator(regex=r'^\d{6}-\d{4}$', message='RRMMDD-XXXX')
 
 class Profile(models.Model):
     user = models.OneToOneField(

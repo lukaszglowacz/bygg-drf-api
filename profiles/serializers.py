@@ -98,11 +98,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
     def validate_personnummer(self, value):
-        regex = RegexValidator(regex=r'^\d{6}-\d{4}$', message='Oczekiwany format personnummer: XXXXXX-XXXX.')
+        regex = RegexValidator(regex=r'^\d{6}-\d{4}$', message='Oczekiwany format personnummer: RRMMDD-XXXX.')
         try:
             regex(value)
         except ValidationError:
-            raise serializers.ValidationError("Niepoprawny format personnummer. Oczekiwany format: XXXXXX-XXXX.")
+            raise serializers.ValidationError("Niepoprawny format personnummer. Oczekiwany format: RRMMDD-XXXX.")
         if Profile.objects.filter(personnummer=value).exists():
             raise serializers.ValidationError("Ten personnummer jest już używany. Proszę użyć innego numeru.")
         return value
