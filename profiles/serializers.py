@@ -42,9 +42,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         fields = ('email', 'password', 'first_name', 'last_name', 'personnummer')
 
     def validate_personnummer(self, value):
-        """
-        Sprawdza, czy personnummer jest unikalny.
-        """
+        print(f"Validating personnummer: {value}")  # Dodaj logowanie
         if Profile.objects.filter(personnummer=value).exists():
             raise serializers.ValidationError("Ten personnummer jest już używany.")
         return value
