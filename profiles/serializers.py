@@ -74,6 +74,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('email', 'password', 'first_name', 'last_name', 'personnummer')
+        extra_kwargs = {
+            'email': {'required': True, 'error_messages': {'blank': 'Pole jest wymagane.', 'required': 'Pole jest wymagane.'}},
+            'password': {'write_only': True, 'required': True, 'error_messages': {'blank': 'Pole jest wymagane.', 'required': 'Pole jest wymagane.'}},
+            'first_name': {'required': True, 'error_messages': {'blank': 'Pole jest wymagane.', 'required': 'Pole jest wymagane.'}},
+            'last_name': {'required': True, 'error_messages': {'blank': 'Pole jest wymagane.', 'required': 'Pole jest wymagane.'}},
+            'personnummer': {'required': True, 'error_messages': {'blank': 'Pole jest wymagane.', 'required': 'Pole jest wymagane.'}}
+        }
         
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
