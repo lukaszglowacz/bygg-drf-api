@@ -5,7 +5,7 @@ from drf_api.permissions import IsOwnerOrEmployer, IsEmployee
 from rest_framework.permissions import IsAuthenticated
 
 class WorkplaceListCreateView(generics.ListCreateAPIView):
-    queryset = Workplace.objects.all()
+    queryset = Workplace.objects.all().order_by('street') 
     serializer_class = WorkplaceSerializer
     permission_classes = [IsAuthenticated]
 

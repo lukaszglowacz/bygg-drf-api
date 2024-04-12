@@ -11,6 +11,7 @@ class Profile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name='profile'
     )
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
@@ -18,6 +19,15 @@ class Profile(models.Model):
     image = models.ImageField(upload_to='images/', default='../default_profile_l2i70s', validators=[validate_image_file_size, validate_image_dimensions])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
 
     def __str__(self):
         return self.user.email
+    
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)

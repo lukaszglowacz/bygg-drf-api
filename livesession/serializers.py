@@ -1,15 +1,27 @@
 from rest_framework import serializers
 from .models import LiveSession
+from profiles.models import Profile
+from workplace.models import Workplace
+from profiles.serializers import ProfileSerializer
+from workplace.serializers import WorkplaceSerializer
 
 class LiveSessionSerializer(serializers.ModelSerializer):
-    user_first_name = serializers.CharField(source='user.profile.first_name', read_only=True)
-    user_last_name = serializers.CharField(source='user.profile.last_name', read_only=True)
-    workplace_detail = serializers.SerializerMethodField()
-    start_time = serializers.DateTimeField(format='%d.%m.%Y %H:%M',read_only=True)
+    profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all())
+    workplace = serializers.PrimaryKeyRelatedField(queryset=Workplace.objects.all())
 
     class Meta:
         model = LiveSession
-        fields = ['id', 'user', 'workplace', 'start_time', 'status', 'user_first_name', 'user_last_name', 'workplace_detail']
+        fields = [
+            'id', 'profile', 'workplace', 'start_time', 'status'
+        ]
+        
+    def create(self, validated_data):
+        # Upewnij się, że wszystkie przekazane klucze są obsługiwane przez model
+        return LiveSession.objects.create(**validated_data)
 
-    def get_workplace_detail(self, obj):
-        return f"{obj.workplace.street} {obj.workplace.street_number}, {obj.workplace.postal_code} {obj.workplace.city}"
+    def to_representation(self, instance):
+        # Dostosowanie reprezentacji, aby zwracała pełne dane profilu i miejsca pracy
+        representation = super().to_representation(instance)
+        representation['profile'] = ProfileSerializer(instance.profile).data
+        representation['workplace'] = WorkplaceSerializer(instance.workplace).data
+        return representation

@@ -1,40 +1,20 @@
 from django.db import models
-from django.core.exceptions import ValidationError
-from django.conf import settings
+from profiles.models import Profile
 from workplace.models import Workplace
-from django.utils import timezone
 
 class WorkSession(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-    )
-    workplace = models.ForeignKey(Workplace, on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField(null=True, blank=True)
-    
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="Profil użytkownika")
+    workplace = models.ForeignKey(Workplace, on_delete=models.CASCADE, verbose_name="Miejsce pracy")
+    start_time = models.DateTimeField(verbose_name="Czas rozpoczęcia")
+    end_time = models.DateTimeField(verbose_name="Czas zakończenia")
+
     @property
     def total_time(self):
         if self.start_time and self.end_time:
             delta = self.end_time - self.start_time
-            hours = int(delta.total_seconds() // 3600)
-            minutes = int((delta.total_seconds() % 3600) // 60)
-            return f"{hours} tim, {minutes} min"
-        elif self.start_time and not self.end_time:
-            delta = timezone.now() - self.start_time
-            hours = int(delta.total_seconds() // 3600)
-            minutes = int((delta.total_seconds() % 3600) // 60)
-            return f"{hours} tim, {minutes} min"
-        return "Nieokreślony"
-
-    def clean(self):
-        if self.end_time and self.end_time < self.start_time:
-            raise ValidationError('Czas zakończenia nie może być wcześniejszy niż czas rozpoczęcia')
-        
-    def save(self, *args, **kwargs):
-        self.clean()
-        super().save(*args, **kwargs)
+            hours = delta.seconds // 3600
+            minutes = (delta.seconds % 3600) // 60
+            return f"{hours} h, {minutes} min"
 
     def __str__(self):
-        return f"{self.user} - {self.workplace.street} {self.workplace.street_number}, {self.workplace.postal_code} {self.workplace.city} - {self.start_time.strftime('%Y-%m-%d %H:%M')}"
-
+        return f"{self.profile.user.email} - {self.workplace.street} {self.workplace.street_number}, {self.workplace.postal_code} {self.workplace.city}"
