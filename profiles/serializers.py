@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Profile
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.core.validators import RegexValidator, EmailValidator
@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from accounts.models import CustomUser
 from django.contrib.auth.password_validation import validate_password
 import re
-from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 
 
@@ -132,29 +131,30 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    default_error_messages = {
-        'no_active_account': _('Nie znaleziono użytkownika z tym adresem e-mail lub nieprawidłowe hasło.')
-    }
-
     def validate(self, attrs):
-        email = attrs.get('email', '')
-        password = attrs.get('password', '')
+        # Custom validations
+        email = attrs.get('email')
+        password = attrs.get('password')
 
+        # Validate email presence and format
         if not email:
-            raise serializers.ValidationError({'email': _('To pole nie może być puste.')})
-        if not password:
-            raise serializers.ValidationError({'password': _('To pole nie może być puste.')})
-
+            raise serializers.ValidationError({'email': _('E-mail jest wymagany.')})
         if '@' not in email:
             raise serializers.ValidationError({'email': _('Wprowadź prawidłowy adres e-mail z znakiem "@".')})
 
-        # Uwierzytelnianie użytkownika
-        user = authenticate(request=self.context.get('request'), username=email, password=password)
+        # Authenticate user
+        user = authenticate(username=email, password=password)
         if not user:
-            raise serializers.ValidationError({'email': _('Nie znaleziono użytkownika z tym adresem e-mail.'),
-                                               'password': _('Nieprawidłowe hasło.')})
+            # If user does not exist or password is incorrect
+            if not User.objects.filter(email=email).exists():
+                raise serializers.ValidationError({'email': _('Nie znaleziono użytkownika z tym adresem e-mail.')})
+            else:
+                raise serializers.ValidationError({'password': _('Nieprawidłowe hasło.')})
 
-        return super().validate(attrs)
+        # If authentication succeeds, proceed with the default JWT token creation
+        data = super().validate(attrs)
+        data['user_id'] = user.id  # Include user ID in the token response
+        return data
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
