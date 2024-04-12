@@ -4,8 +4,8 @@ from profiles.serializers import ProfileSerializer
 from workplace.serializers import WorkplaceSerializer
 
 class WorkSessionSerializer(serializers.ModelSerializer):
-    profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all())
-    workplace = serializers.PrimaryKeyRelatedField(queryset=Workplace.objects.all())
+    profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all(), required=False)
+    workplace = serializers.PrimaryKeyRelatedField(queryset=Workplace.objects.all(), required=False)
     start_time = serializers.DateTimeField()
     end_time = serializers.DateTimeField()
 
