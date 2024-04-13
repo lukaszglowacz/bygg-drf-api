@@ -158,6 +158,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # If authentication succeeds, proceed with the default JWT token creation
         data = super().validate(attrs)
         data['user_id'] = user.id  # Include user ID in the token response
+        
+        if hasattr(user, 'profile'):
+            data['profile_id'] = user.profile.id
+        else:
+            data['profile_id'] = None
+            
         return data
 
 
