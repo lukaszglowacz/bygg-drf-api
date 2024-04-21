@@ -7,9 +7,6 @@ from rest_framework import generics, permissions
 from .serializers import UserRegistrationSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
-
-
-
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [ permissions.AllowAny ]
@@ -21,7 +18,7 @@ class ProfileList(ListCreateAPIView):
 
 
     def get_queryset(self):
-        return Profile.objects.all()
+        return Profile.objects.filter(user=self.request.user)
         
 
 class ProfileDetail(RetrieveUpdateDestroyAPIView):
@@ -30,10 +27,4 @@ class ProfileDetail(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        if user.is_employer:
-            # Pracodawcy mają dostęp do wszystkich profili
-            return Profile.objects.all()
-        else:
-            # Zwykli użytkownicy mogą zobaczyć tylko swój profil
-            return Profile.objects.filter(user=user)
+        return Profile.objects.filter(user=self.request.user)

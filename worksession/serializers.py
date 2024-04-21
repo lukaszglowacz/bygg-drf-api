@@ -14,8 +14,8 @@ class SimpleWorkplaceSerializer(serializers.ModelSerializer):
 class WorkSessionSerializer(serializers.ModelSerializer):
     profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all())
     workplace = serializers.PrimaryKeyRelatedField(queryset=Workplace.objects.all())
-    start_time = serializers.DateTimeField()
-    end_time = serializers.DateTimeField()
+    start_time = serializers.DateTimeField(format='%Y.%m.%d %H:%M')
+    end_time = serializers.DateTimeField(format='%Y.%m.%d %H:%M')
     total_time = serializers.ReadOnlyField()  # Oznaczone jako tylko do odczytu, ponieważ jest obliczane
 
     class Meta:

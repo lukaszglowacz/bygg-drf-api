@@ -8,6 +8,7 @@ from workplace.serializers import WorkplaceSerializer
 class LiveSessionSerializer(serializers.ModelSerializer):
     profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all())
     workplace = serializers.PrimaryKeyRelatedField(queryset=Workplace.objects.all())
+    start_time = serializers.DateTimeField(format='%Y.%m.%d %H:%M', required=False)
 
     class Meta:
         model = LiveSession
