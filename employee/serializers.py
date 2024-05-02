@@ -10,11 +10,12 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
     current_session_start_time = serializers.SerializerMethodField()
     current_session_status = serializers.SerializerMethodField()
     current_workplace = serializers.SerializerMethodField()
+    user_email = serializers.SerializerMethodField() 
 
 
     class Meta:
         model = Profile
-        fields = ['id', 'full_name', 'personnummer', 'current_session_start_time', 'current_session_status', 'current_workplace']
+        fields = ['id', 'full_name', 'user_email', 'personnummer', 'current_session_start_time', 'current_session_status', 'current_workplace', 'image']
 
     def get_current_session_start_time(self, profile):
         # Pobiera najnowszą sesję zgodnie z profilem
@@ -33,4 +34,9 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
             # Tworzenie stringa zawierającego adres
             return f"{workplace.street} {workplace.street_number}, {workplace.city}"
         return "Brak miejsca pracy"
+    
+    def get_user_email(self, obj):
+        # Assuming 'profile' is linked to 'Employee' and 'user' to 'Profile'
+        return obj.user.email if obj and obj.user else None
+    
 
