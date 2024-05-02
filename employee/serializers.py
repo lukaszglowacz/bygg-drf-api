@@ -31,6 +31,6 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
         if session and session.workplace:
             workplace = session.workplace
             # Tworzenie stringa zawierającego adres
-            return f"{workplace.street} {workplace.street_number}, {workplace.postal_code} {workplace.city}"
+            return f"{workplace.street} {workplace.street_number}, {workplace.city}"
         return "Brak miejsca pracy"
 
