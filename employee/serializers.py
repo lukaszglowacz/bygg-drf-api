@@ -1,21 +1,24 @@
 from rest_framework import serializers
 from .models import Employee
 from profiles.models import Profile
+from livesession.models import LiveSession
 
 
 class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
-    employee_details = serializers.SerializerMethodField()
+    current_session_start_time = serializers.SerializerMethodField()
+    current_session_status = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Profile
-        fields = ['id', 'full_name', 'personnummer', 'employee_details']
+        fields = ['id', 'full_name', 'personnummer', 'current_session_start_time', 'current_session_status']
 
-    def get_employee_details(self, profile):
-        employee = Employee.objects.filter(profile=profile).first()
-        if employee:
-            return {
-                'total_hours_worked': employee.total_hours_worked,
-                'current_work_location': employee.current_work_location,
-                'work_start_time': employee.work_start_time,
-            }
-        return None
+    def get_current_session_start_time(self, profile):
+        # Pobiera najnowszą sesję zgodnie z profilem
+        session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
+        return session.start_time.strftime('%Y.%m.%d %H:%M') if session else None
+
+    def get_current_session_status(self, profile):
+        # Pobiera status najnowszej sesji
+        session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
+        return session.status if session else 'Brak sesji'

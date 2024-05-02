@@ -11,6 +11,6 @@ class EmployeeList(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
 class EmployeeDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Employee.objects.all()
+    queryset = Profile.objects.all()
     serializer_class = ProfileWithEmployeeSerializer
     permission_classes = [IsAuthenticated]
