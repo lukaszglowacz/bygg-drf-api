@@ -1,9 +1,9 @@
 from django.db import models
-from django.conf import settings
+from profiles.models import Profile
 
 class Employee(models.Model):
     profile = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
+        Profile, 
         on_delete=models.CASCADE,
         related_name='employee'
     )
@@ -12,4 +12,4 @@ class Employee(models.Model):
     work_start_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.profile.first_name} {self.profile.last_name} - {self.current_work_location}"
+        return f"{self.profile.user.first_name} {self.profile.user.last_name} - {self.current_work_location}"

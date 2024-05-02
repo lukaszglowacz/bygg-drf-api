@@ -18,7 +18,7 @@ class ProfileList(ListCreateAPIView):
 
 
     def get_queryset(self):
-        return Profile.objects.all()
+        return Profile.objects.filter(user=self.request.user)
         
 
 class ProfileDetail(RetrieveUpdateDestroyAPIView):
