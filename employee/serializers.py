@@ -2,16 +2,19 @@ from rest_framework import serializers
 from .models import Employee
 from profiles.models import Profile
 from livesession.models import LiveSession
+from workplace.serializers import WorkplaceSerializer
+
 
 
 class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
     current_session_start_time = serializers.SerializerMethodField()
     current_session_status = serializers.SerializerMethodField()
+    current_workplace = serializers.SerializerMethodField()
 
 
     class Meta:
         model = Profile
-        fields = ['id', 'full_name', 'personnummer', 'current_session_start_time', 'current_session_status']
+        fields = ['id', 'full_name', 'personnummer', 'current_session_start_time', 'current_session_status', 'current_workplace']
 
     def get_current_session_start_time(self, profile):
         # Pobiera najnowszą sesję zgodnie z profilem
@@ -21,4 +24,13 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
     def get_current_session_status(self, profile):
         # Pobiera status najnowszej sesji
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
-        return session.status if session else 'Brak sesji'
+        return session.status if session else 'Nie pracuje'
+    
+    def get_current_workplace(self, profile):
+        session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
+        if session and session.workplace:
+            workplace = session.workplace
+            # Tworzenie stringa zawierającego adres
+            return f"{workplace.street} {workplace.street_number}, {workplace.postal_code} {workplace.city}"
+        return "Brak miejsca pracy"
+
