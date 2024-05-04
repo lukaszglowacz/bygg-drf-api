@@ -16,4 +16,13 @@ class Employee(models.Model):
     def __str__(self):
         return f"{self.profile.user.first_name} {self.profile.user.last_name} - {self.current_work_location}"
     
-    
+    @property
+    def work_sessions(self):
+        sessions = WorkSession.objects.filter(profile=self.profile)
+        data = sessions.annotate(
+            total_time=ExpressionWrapper(F('end_time') - F('start_time'), output_field=fields.DurationField())
+        ).values(
+            'id', 'workplace__street', 'workplace__street_number', 
+            'workplace__postal_code', 'workplace__city', 'start_time', 'end_time', 'total_time'
+        ).order_by('-start_time')
+        return list(data)
