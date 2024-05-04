@@ -3,6 +3,8 @@ from .models import Employee
 from profiles.models import Profile
 from livesession.models import LiveSession
 from workplace.serializers import WorkplaceSerializer
+from django.utils import timezone
+from datetime import timedelta
 
 
 
@@ -10,7 +12,7 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
     current_session_start_time = serializers.SerializerMethodField()
     current_session_status = serializers.SerializerMethodField()
     current_workplace = serializers.SerializerMethodField()
-    user_email = serializers.SerializerMethodField() 
+    user_email = serializers.SerializerMethodField()
 
 
     class Meta:
@@ -39,4 +41,4 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
         # Assuming 'profile' is linked to 'Employee' and 'user' to 'Profile'
         return obj.user.email if obj and obj.user else None
     
-
+    
