@@ -14,8 +14,8 @@ class SimpleWorkplaceSerializer(serializers.ModelSerializer):
 class WorkSessionSerializer(serializers.ModelSerializer):
     profile = serializers.PrimaryKeyRelatedField(queryset=Profile.objects.all())
     workplace = serializers.PrimaryKeyRelatedField(queryset=Workplace.objects.all())
-    start_time = serializers.DateTimeField(format='%Y.%m.%d %H:%M')
-    end_time = serializers.DateTimeField(format='%Y.%m.%d %H:%M')
+    start_time = serializers.DateTimeField()
+    end_time = serializers.DateTimeField()
     total_time = serializers.ReadOnlyField()  # Oznaczone jako tylko do odczytu, ponieważ jest obliczane
 
     class Meta:
@@ -28,10 +28,10 @@ class WorkSessionSerializer(serializers.ModelSerializer):
         return data
 
     def to_representation(self, instance):
-        """Modify the representation of `start_time` and `end_time` to 'RR.MM.DD HH:MM' format."""
+        """Modify the representation of `start_time` and `end_time` to 'YYYY-MM-DD HH:MM' format."""
         representation = super().to_representation(instance)
         representation['profile'] = SimpleProfileSerializer(instance.profile).data
         representation['workplace'] = SimpleWorkplaceSerializer(instance.workplace).data
-        representation['start_time'] = instance.start_time.strftime('%y.%m.%d %H:%M')
-        representation['end_time'] = instance.end_time.strftime('%y.%m.%d %H:%M')
+        representation['start_time'] = instance.start_time.strftime('%Y-%m-%d %H:%M')
+        representation['end_time'] = instance.end_time.strftime('%Y-%m-%d %H:%M')
         return representation

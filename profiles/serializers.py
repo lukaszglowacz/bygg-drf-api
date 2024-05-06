@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 
+
 class ProfileSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email', read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
@@ -169,3 +170,5 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+
