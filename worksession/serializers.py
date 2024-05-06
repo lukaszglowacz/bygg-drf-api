@@ -2,9 +2,10 @@ from rest_framework import serializers
 from .models import WorkSession, Profile, Workplace
 
 class SimpleProfileSerializer(serializers.ModelSerializer):
+    user_email = serializers.EmailField(source='user.email', read_only=True)
     class Meta:
         model = Profile
-        fields = ['id', 'full_name', 'personnummer']
+        fields = ['id', 'full_name', 'personnummer', 'image', 'user_email']
 
 class SimpleWorkplaceSerializer(serializers.ModelSerializer):
     class Meta:
