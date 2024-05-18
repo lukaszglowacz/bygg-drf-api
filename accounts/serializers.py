@@ -12,15 +12,15 @@ class UserSerializer(serializers.ModelSerializer):
             'email': {
                 'required': True,
                 'error_messages': {
-                    'blank': 'Adres email jest wymagany.',  # Niestandardowy komunikat dla pustego pola
+                    'blank': 'Email address is required.',  # Niestandardowy komunikat dla pustego pola
                 }
             },
             'password': {
                 'write_only': True,
                 'required': True,
                 'error_messages': {
-                    'blank': 'Hasło jest wymagane.',  # Niestandardowy komunikat dla pustego pola
-                    'required': 'To pole jest obowiązkowe.'  # Możesz użyć tego samego lub innego komunikatu
+                    'blank': 'Password is required.',  # Niestandardowy komunikat dla pustego pola
+                    'required': 'This field is mandatory.'  # Możesz użyć tego samego lub innego komunikatu
                 }
             }
         }
@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
         # Sprawdzenie regex dla hasła
         if not regex_password.match(value):
             raise serializers.ValidationError(
-                "Hasło musi zawierać co najmniej 8 znaków, jedną dużą literę, jedną cyfrę i jeden znak specjalny."
+                "The password must contain at least 8 characters, one uppercase letter, one number and one special character."
             )
 
         # Dodatkowa walidacja hasła za pomocą wbudowanych narzędzi Django

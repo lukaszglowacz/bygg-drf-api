@@ -20,7 +20,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True, error_messages={
-        'unique': _("Ten adres email jest już używany. Proszę użyć innego adresu."),
+        'unique': _("This email address is already in use. Please use a different address."),
     })
 
     is_employer = models.BooleanField(default=False)

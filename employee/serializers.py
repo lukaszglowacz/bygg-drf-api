@@ -34,7 +34,7 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
         if session and session.workplace:
             return f"{session.workplace.street} {session.workplace.street_number}, {session.workplace.city}"
-        return "Brak miejsca pracy"
+        return "No job"
     
     def get_user_email(self, obj):
         return obj.user.email if obj and obj.user else None

@@ -25,7 +25,7 @@ class WorkSessionSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if 'end_time' in data and data.get('end_time') < data['start_time']:
-            raise serializers.ValidationError("Czas zakończenia nie może być wcześniejszy niż czas rozpoczęcia")
+            raise serializers.ValidationError("The end time cannot be earlier than the start time")
         return data
 
     def to_representation(self, instance):

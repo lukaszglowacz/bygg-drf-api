@@ -3,10 +3,10 @@ from profiles.models import Profile
 from workplace.models import Workplace
 
 class WorkSession(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="Profil użytkownika")
-    workplace = models.ForeignKey(Workplace, on_delete=models.CASCADE, verbose_name="Miejsce pracy")
-    start_time = models.DateTimeField(verbose_name="Czas rozpoczęcia")
-    end_time = models.DateTimeField(verbose_name="Czas zakończenia")
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, verbose_name="User profile")
+    workplace = models.ForeignKey(Workplace, on_delete=models.CASCADE, verbose_name="Workplace")
+    start_time = models.DateTimeField(verbose_name="Start time")
+    end_time = models.DateTimeField(verbose_name="End time")
 
     @property
     def total_time(self):
