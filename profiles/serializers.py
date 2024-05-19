@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 class ProfileSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email', read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
+    is_employer = serializers.BooleanField(source='user.is_employer', read_only=True)
     full_name = serializers.SerializerMethodField()
 
     # Formatowanie pól daty/godziny
@@ -34,7 +35,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             'personnummer',
             'created_at', 
             'updated_at',
-            'image'
+            'image',
+            'is_employer'
         ]
         read_only_fields = ['user']
 
