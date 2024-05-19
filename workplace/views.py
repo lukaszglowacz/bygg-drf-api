@@ -1,7 +1,7 @@
 from rest_framework import generics
 from .models import Workplace
 from .serializers import WorkplaceSerializer
-from drf_api.permissions import IsOwnerOrEmployer, IsEmployee
+from drf_api.permissions import IsEmployee
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 

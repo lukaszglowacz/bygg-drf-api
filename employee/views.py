@@ -8,11 +8,12 @@ from django.utils.timezone import make_aware
 import calendar
 from django.utils.timezone import make_aware, datetime
 from django.shortcuts import get_object_or_404
+from drf_api.permissions import IsEmployer, IsEmployee
 
 class EmployeeList(ListCreateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileWithEmployeeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsEmployer]
 
 
 from django.utils.timezone import make_aware, datetime
@@ -23,7 +24,7 @@ import calendar
 
 class EmployeeDetail(RetrieveUpdateDestroyAPIView):
     serializer_class = ProfileWithEmployeeSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsEmployer]
 
     def get_queryset(self):
         profile_id = self.kwargs.get('pk')

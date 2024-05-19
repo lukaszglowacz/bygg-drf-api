@@ -1,7 +1,6 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from .models import Profile
 from .serializers import ProfileSerializer
-from drf_api.permissions import IsOwnerOrEmployer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, permissions
 from .serializers import UserRegistrationSerializer
