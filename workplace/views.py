@@ -1,14 +1,14 @@
 from rest_framework import generics
 from .models import Workplace
 from .serializers import WorkplaceSerializer
-from drf_api.permissions import IsEmployee
+from drf_api.permissions import IsEmployer, ReadOnly
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 
 class WorkplaceListCreateView(generics.ListCreateAPIView):
     queryset = Workplace.objects.all().order_by('street') 
     serializer_class = WorkplaceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsEmployer | ReadOnly]
     
 
     def workplace_view(request):
@@ -22,4 +22,4 @@ class WorkplaceListCreateView(generics.ListCreateAPIView):
 class WorkplaceDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Workplace.objects.all()
     serializer_class = WorkplaceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsEmployer | ReadOnly]

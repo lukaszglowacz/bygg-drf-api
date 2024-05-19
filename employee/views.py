@@ -8,7 +8,7 @@ from django.utils.timezone import make_aware
 import calendar
 from django.utils.timezone import make_aware, datetime
 from django.shortcuts import get_object_or_404
-from drf_api.permissions import IsEmployer, IsEmployee
+from drf_api.permissions import IsEmployer
 
 class EmployeeList(ListCreateAPIView):
     queryset = Profile.objects.all()
