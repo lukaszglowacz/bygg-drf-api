@@ -4,8 +4,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from profiles.views import UserRegistrationView
 from profiles.serializers import MyTokenObtainPairView 
 
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
