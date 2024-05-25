@@ -13,4 +13,4 @@ class Employee(models.Model):
 
     def __str__(self):
         # String representation of the Employee model
-        return f"{self.profile.user.first_name} {self.profile.user.last_name} - {self.current_work_location}"
+        return f"{self.profile.first_name} {self.profile.last_name}"

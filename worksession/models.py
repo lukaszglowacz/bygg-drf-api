@@ -1,6 +1,7 @@
 from django.db import models
 from profiles.models import Profile  # Importing the Profile model
 from workplace.models import Workplace  # Importing the Workplace model
+from django.core.exceptions import ValidationError
 
 class WorkSession(models.Model):
     """
@@ -43,3 +44,10 @@ class WorkSession(models.Model):
         """
         # Formatted string that includes the user's email and the full address of the workplace
         return f"{self.profile.user.email} - {self.workplace.street} {self.workplace.street_number}, {self.workplace.postal_code} {self.workplace.city}"
+
+    def clean(self):
+        """
+        Custom validation to check that end_time is not earlier than start_time.
+        """
+        if self.end_time < self.start_time:
+            raise ValidationError('End time cannot be earlier than start time.')
