@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost:5173', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost:5173', 'localhost:5174', '127.0.0.1']
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -119,7 +119,8 @@ WSGI_APPLICATION = 'drf_api.wsgi.application'
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  # Dla aplikacji React uruchamianej na porcie 5174
+    'http://localhost:5173',
+    'http://localhost:5174',# Dla aplikacji React uruchamianej na porcie 5174
     'http://127.0.0.1:8000',  # Inny dozwolony adres
 ]
 
