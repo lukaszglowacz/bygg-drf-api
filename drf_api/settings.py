@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['localhost:5173', '127.0.0.1']
 
@@ -82,7 +82,7 @@ INSTALLED_APPS = [
     'accounts',
     'livesession',
     'employee',
-    'password_reset'
+    'password_reset',
 ]
 
 MIDDLEWARE = [
@@ -101,7 +101,7 @@ ROOT_URLCONF = 'drf_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -185,3 +185,10 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
+EMAIL_HOST_USER = 'f41070e4810027'
+EMAIL_HOST_PASSWORD = '380be24482997b'
+EMAIL_PORT = '2525'
+EMAIL_USE_TLS = True
