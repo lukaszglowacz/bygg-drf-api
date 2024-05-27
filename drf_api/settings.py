@@ -119,7 +119,7 @@ WSGI_APPLICATION = 'drf_api.wsgi.application'
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
+    'http://localhost:5173',# Dla aplikacji React uruchamianej na porcie 5173
     'http://localhost:5174',# Dla aplikacji React uruchamianej na porcie 5174
     'http://127.0.0.1:8000',  # Inny dozwolony adres
 ]
@@ -194,4 +194,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'bakatjur@gmail.com'
 EMAIL_HOST_PASSWORD = 'nxsx axuo ixrq dpiq'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+FRONTEND_URL = 'http://localhost:5174'
 

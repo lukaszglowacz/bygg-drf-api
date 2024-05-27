@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework.response import Response
 from .serializers import PasswordResetSerializer, SetNewPasswordSerializer
-from accounts.models import CustomUser  # Zaktualizowany import niestandardowego modelu użytkownika
+from django.conf import settings
 import logging
 
 logger = logging.getLogger(__name__)
@@ -26,15 +26,21 @@ class PasswordResetView(APIView):
         try:
             email = serializer.validated_data['email']
             logger.info(f"Looking for user with email: {email}")
-            user = CustomUser.objects.filter(email=email).first()
+            User = get_user_model()
+            user = User.objects.filter(email=email).first()
 
             if user:
                 logger.info(f"User found: {user.username}")
                 token = default_token_generator.make_token(user)
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
-                reset_url = f"{request.scheme}://{request.get_host()}/password-reset/confirm/{uid}/{token}/"  # Aktualizacja reset_url
+                reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
 
-                message = render_to_string('password_reset_email.html', {
+                message = render_to_string('password_reset_email.txt', {
+                    'user': user,
+                    'reset_url': reset_url,
+                })
+
+                html_message = render_to_string('password_reset_email.html', {
                     'user': user,
                     'reset_url': reset_url,
                 })
@@ -46,15 +52,18 @@ class PasswordResetView(APIView):
                     'from@example.com',
                     [user.email],
                     fail_silently=False,
+                    html_message=html_message
                 )
                 logger.info("Email sent successfully")
             else:
                 logger.info(f"No user found with email: {email}")
+                return Response({'email': ['No user found with this email address.']}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({'message': 'Password reset link sent.'}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Error during password reset: {e}", exc_info=True)
             return Response({'error': 'An error occurred during password reset.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class PasswordResetConfirmView(APIView):
     serializer_class = SetNewPasswordSerializer
@@ -63,8 +72,9 @@ class PasswordResetConfirmView(APIView):
     def post(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
-            user = CustomUser.objects.get(pk=uid)  # Użycie niestandardowego modelu użytkownika
-        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist) as e:
+            User = get_user_model()
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
             logger.error(f"Error decoding UID or finding user: {e}", exc_info=True)
             user = None
 
