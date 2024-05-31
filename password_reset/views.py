@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from .serializers import PasswordResetSerializer, SetNewPasswordSerializer
 from django.conf import settings
 import logging
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 logger = logging.getLogger(__name__)
 
@@ -91,3 +93,24 @@ class PasswordResetConfirmView(APIView):
         else:
             logger.error(f"Invalid link for password reset: UID={uidb64}, Token={token}")
             return Response({'error': 'Invalid link'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+User = get_user_model()
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+
+        if not user.check_password(old_password):
+            return Response({"old_password": ["Old password is not correct."]}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+        return Response({"detail": "Password has been changed."}, status=status.HTTP_200_OK)
