@@ -142,21 +142,22 @@ class EmployeeMonthlySummaryPDF(APIView):
         total_minutes = remainder // 60
 
         header_data = [
-            [f"Monthly Summary for {profile.full_name}"],
+            [f"{profile.full_name}"],
             [f"Personnummer: {profile.personnummer}"],
             [f"Email: {profile.user.email}"],
             [f"Month: {calendar.month_name[month]}, {year}"],
             [f"Total Hours Worked: {int(total_hours)} h, {int(total_minutes)} min"]
         ]
-        header_table = Table(header_data, colWidths=[7.5 * inch])
+        header_table = Table(header_data, colWidths=[5 * inch])
         header_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
             ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('FONTSIZE', (0, 0), (-1, 0), 14),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('TOPPADDING', (0, 0), (-1, 0), 12),
             ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 1), (-1, -1), 'MIDDLE'),
             ('BACKGROUND', (0, 1), (-1, -1), colors.white),
@@ -198,6 +199,7 @@ class EmployeeMonthlySummaryPDF(APIView):
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 10),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('TOPPADDING', (0, 0), (-1, 0), 12),
             ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
             ('VALIGN', (0, 1), (-1, -1), 'MIDDLE'),
             ('BACKGROUND', (0, 1), (-1, -1), colors.white),
@@ -208,4 +210,7 @@ class EmployeeMonthlySummaryPDF(APIView):
         doc.build(elements)
 
         buffer.seek(0)
-        return HttpResponse(buffer, content_type='application/pdf')
+        file_name = f"{calendar.month_name[month]}_{year}_{profile.personnummer}_{profile.full_name.replace(' ', '_')}.pdf"
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        return response
