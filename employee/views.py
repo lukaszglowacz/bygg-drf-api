@@ -58,17 +58,17 @@ class EmployeeDetail(RetrieveUpdateDestroyAPIView):
         return obj
 
 class EmployeeMonthlySummaryPDF(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmployer]
 
-    def get_employee(self, employee_id):
-        logger.debug(f"Attempting to get employee with profile id {employee_id}")
+    def get_profile(self, profile_id):
+        logger.debug(f"Attempting to get profile with id {profile_id}")
         try:
-            employee = Employee.objects.get(profile__id=employee_id)
-            logger.debug(f"Found employee: {employee}")
-            return employee
-        except Employee.DoesNotExist:
-            logger.error(f"Employee with profile id {employee_id} not found")
-            raise NotFound("Employee not found")
+            profile = Profile.objects.get(id=profile_id)
+            logger.debug(f"Found profile: {profile}")
+            return profile
+        except Profile.DoesNotExist:
+            logger.error(f"Profile with id {profile_id} not found")
+            raise NotFound("Profile not found")
 
     def split_sessions_by_day(self, sessions):
         split_sessions = []
@@ -94,15 +94,15 @@ class EmployeeMonthlySummaryPDF(APIView):
         return split_sessions
 
     def get(self, request, *args, **kwargs):
-        employee_id = kwargs.get('id')
-        logger.debug(f"Received request for monthly summary PDF for employee_id={employee_id}")
+        profile_id = kwargs.get('id')
+        logger.debug(f"Received request for monthly summary PDF for profile_id={profile_id}")
         
         year = int(request.query_params.get('year', datetime.now().year))
         month = int(request.query_params.get('month', datetime.now().month))
         logger.debug(f"Generating PDF for year={year}, month={month}")
         
-        employee = self.get_employee(employee_id)
-        logger.debug(f"Found employee: {employee}")
+        profile = self.get_profile(profile_id)
+        logger.debug(f"Found profile: {profile}")
 
         start_date = make_aware(datetime(year, month, 1))
         last_day = calendar.monthrange(year, month)[1]
@@ -110,7 +110,7 @@ class EmployeeMonthlySummaryPDF(APIView):
 
         logger.debug(f"Filtering sessions between {start_date} and {end_date}")
 
-        sessions = employee.profile.worksession_set.filter(
+        sessions = profile.worksession_set.filter(
             start_time__gte=start_date,
             start_time__lte=end_date
         )
@@ -142,9 +142,9 @@ class EmployeeMonthlySummaryPDF(APIView):
         total_minutes = remainder // 60
 
         header_data = [
-            [f"Monthly Summary for {employee.profile.full_name}"],
-            [f"Personnummer: {employee.profile.personnummer}"],
-            [f"Email: {employee.profile.user.email}"],
+            [f"Monthly Summary for {profile.full_name}"],
+            [f"Personnummer: {profile.personnummer}"],
+            [f"Email: {profile.user.email}"],
             [f"Month: {calendar.month_name[month]}, {year}"],
             [f"Total Hours Worked: {int(total_hours)} h, {int(total_minutes)} min"]
         ]
