@@ -5,9 +5,23 @@ from profiles.models import Profile  # Importing Profile model used in queries
 from .serializers import ProfileWithEmployeeSerializer  # Importing the serializer for Profile
 from django.utils.timezone import make_aware
 import calendar
-from django.utils.timezone import datetime  # Correcting import for datetime
 from django.shortcuts import get_object_or_404
 from drf_api.permissions import IsEmployer  # Custom permission class for employer restriction
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from io import BytesIO
+from django.http import HttpResponse
+from django.utils.timezone import make_aware, datetime
+
+
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
+
+
+from .models import Employee
 
 class EmployeeList(ListCreateAPIView):
     queryset = Profile.objects.all()  # Queryset to include all profiles
@@ -45,3 +59,67 @@ class EmployeeDetail(RetrieveUpdateDestroyAPIView):
         queryset = self.get_queryset()
         obj = get_object_or_404(queryset)  # Using Django's shortcut to get the object or return a 404 error
         return obj
+
+
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+class EmployeeMonthlySummaryPDF(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_employee(self, employee_id):
+        logger.debug(f"Attempting to get employee with id {employee_id}")
+        try:
+            employee = Employee.objects.get(profile__id=employee_id)
+            logger.debug(f"Found employee: {employee}")
+            return employee
+        except Employee.DoesNotExist:
+            logger.error(f"Employee with id {employee_id} not found")
+            raise NotFound("Employee not found")
+
+    def get(self, request, *args, **kwargs):
+        employee_id = kwargs.get('id')
+        logger.debug(f"Received request for monthly summary PDF for employee_id={employee_id}")
+        year = int(request.query_params.get('year', datetime.now().year))
+        month = int(request.query_params.get('month', datetime.now().month))
+        logger.debug(f"Generating PDF for year={year}, month={month}")
+        employee = self.get_employee(employee_id)
+        logger.debug(f"Found employee: {employee}")
+
+        start_date = make_aware(datetime(year, month, 1))
+        last_day = calendar.monthrange(year, month)[1]
+        end_date = make_aware(datetime(year, month, last_day, 23, 59, 59))
+
+        sessions = employee.profile.worksession_set.filter(
+            start_time__gte=start_date,
+            start_time__lte=end_date
+        )
+
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+
+        p.setFont("Helvetica", 12)
+        p.drawString(100, height - 50, f"Monthly Summary for {employee.profile.full_name}")
+        p.drawString(100, height - 70, f"Month: {calendar.month_name[month]}, {year}")
+        p.drawString(100, height - 90, f"Email: {employee.profile.user.email}")
+
+        y = height - 130
+        for session in sessions:
+            start = session.start_time.strftime('%Y-%m-%d %H:%M')
+            end = session.end_time.strftime('%Y-%m-%d %H:%M')
+            p.drawString(100, y, f"Workplace: {session.workplace.street} {session.workplace.street_number}, {session.workplace.city}")
+            p.drawString(100, y - 20, f"Start: {start} - End: {end}")
+            p.drawString(100, y - 40, f"Total Time: {session.total_time}")
+            y -= 60
+            if y < 60:
+                p.showPage()
+                y = height - 60
+
+        p.showPage()
+        p.save()
+
+        buffer.seek(0)
+        return HttpResponse(buffer, content_type='application/pdf')
