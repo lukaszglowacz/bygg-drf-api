@@ -1,16 +1,12 @@
 from rest_framework import serializers
-from .models import Employee  # Importing the Employee model from the current app
-from profiles.models import Profile  # Importing the Profile model from the profiles app
-from livesession.models import LiveSession  # Importing the LiveSession model
-from workplace.serializers import WorkplaceSerializer  # Importing a serializer for the workplace
-from django.utils import timezone
-from datetime import timedelta
-from worksession.models import WorkSession  # Importing the WorkSession model
+from .models import Employee
+from profiles.models import Profile
+from livesession.models import LiveSession
+from workplace.serializers import WorkplaceSerializer
+from worksession.models import WorkSession
 from django.db.models import Sum, F, ExpressionWrapper, fields
-from django.db.models.functions import Cast  # Importing database functions for complex queries
 
 class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
-    # Adding custom fields that are not directly a part of the Profile model but calculated or derived
     current_session_start_time = serializers.SerializerMethodField()
     current_session_status = serializers.SerializerMethodField()
     current_workplace = serializers.SerializerMethodField()
@@ -18,44 +14,36 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
     work_session = serializers.SerializerMethodField()
 
     class Meta:
-        model = Profile  # Specifies the model that the serializer uses
+        model = Profile
         fields = ['id', 'full_name', 'user_email', 'personnummer', 'current_session_start_time', 'current_session_status', 'current_workplace', 'image', 'work_session']
 
     def get_current_session_start_time(self, profile):
-        # Retrieve the most recent live session based on start time
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
-        # Return the start time of the session in a specific format if exists
         return session.start_time.strftime('%Y.%m.%d %H:%M') if session else None
 
     def get_current_session_status(self, profile):
-        # Retrieve the most recent live session
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
-        # Return the status of the session or a default value if no session is found
         return session.status if session else 'Nie pracuje'
-    
+
     def get_current_workplace(self, profile):
-        # Retrieve the most recent live session
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
         if session and session.workplace:
-            # Return the address of the workplace if it exists
             return f"{session.workplace.street} {session.workplace.street_number}, {session.workplace.city}"
         return "No job"
-    
-    def get_user_email(self, obj):
-        # Return the email of the user associated with the profile
-        return obj.user.email if obj and obj.user else None
-    
-    def get_work_session(self, obj):
-        # Query to retrieve all work sessions related to the profile, calculating the duration for each
-        sessions = WorkSession.objects.filter(profile=obj).annotate(
+
+    def get_user_email(self, profile):
+        return profile.user.email if profile and profile.user else None
+
+    def get_work_session(self, profile):
+        sessions = WorkSession.objects.filter(profile=profile).annotate(
             duration=ExpressionWrapper(F('end_time') - F('start_time'), output_field=fields.DurationField())
         ).values(
             'id',
-            'workplace__street', 
-            'workplace__street_number', 
-            'workplace__postal_code', 
-            'workplace__city', 
-            'start_time', 
+            'workplace__street',
+            'workplace__street_number',
+            'workplace__postal_code',
+            'workplace__city',
+            'start_time',
             'end_time',
             'duration'
         )
@@ -74,5 +62,5 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
                 "end_time": session['end_time'].strftime('%Y.%m.%d %H:%M'),
                 "total_time": formatted_duration
             })
-    
+
         return results

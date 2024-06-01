@@ -9,7 +9,7 @@ from django.utils.timezone import make_aware, datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from io import BytesIO
 from django.http import HttpResponse
@@ -24,7 +24,7 @@ import pytz
 logger = logging.getLogger(__name__)
 
 class EmployeeList(ListCreateAPIView):
-    queryset = Profile.objects.all()
+    queryset = Employee.objects.all()
     serializer_class = ProfileWithEmployeeSerializer
     permission_classes = [IsEmployer]
 
@@ -58,16 +58,20 @@ class EmployeeDetail(RetrieveUpdateDestroyAPIView):
         return obj
 
 class EmployeeMonthlySummaryPDF(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsEmployer]
 
-    def get_employee(self, employee_id):
-        logger.debug(f"Attempting to get employee with profile id {employee_id}")
+    def get_employee(self, profile_id):
+        logger.debug(f"Attempting to get employee with profile id {profile_id}")
         try:
-            employee = Employee.objects.get(profile__id=employee_id)
+            profile = Profile.objects.get(id=profile_id)
+            employee = Employee.objects.get(profile=profile)
             logger.debug(f"Found employee: {employee}")
             return employee
+        except Profile.DoesNotExist:
+            logger.error(f"Profile with id {profile_id} not found")
+            raise NotFound("Profile not found")
         except Employee.DoesNotExist:
-            logger.error(f"Employee with profile id {employee_id} not found")
+            logger.error(f"Employee with profile id {profile_id} not found")
             raise NotFound("Employee not found")
 
     def split_sessions_by_day(self, sessions):
@@ -75,39 +79,36 @@ class EmployeeMonthlySummaryPDF(APIView):
         for session in sessions:
             start = session.start_time.astimezone(pytz.timezone("Europe/Stockholm"))
             end = session.end_time.astimezone(pytz.timezone("Europe/Stockholm"))
-
             current_start = start
-
             while current_start < end:
                 session_end_of_day = current_start.replace(hour=23, minute=59, second=59, microsecond=999999)
                 session_end = min(end, session_end_of_day)
-
                 split_sessions.append({
                     "start_time": current_start,
                     "end_time": session_end,
                     "workplace": session.workplace,
                     "profile": session.profile
                 })
-
                 current_start = session_end + timedelta(seconds=1)
-
         return split_sessions
 
     def get(self, request, *args, **kwargs):
-        employee_id = kwargs.get('id')
-        logger.debug(f"Received request for monthly summary PDF for employee_id={employee_id}")
-        
+        profile_id = kwargs.get('id')
+        logger.debug(f"Received request for monthly summary PDF for profile_id={profile_id}")
+        if not profile_id:
+            logger.error("Profile ID not provided")
+            raise NotFound("Profile ID not provided")
+
         year = int(request.query_params.get('year', datetime.now().year))
         month = int(request.query_params.get('month', datetime.now().month))
         logger.debug(f"Generating PDF for year={year}, month={month}")
-        
-        employee = self.get_employee(employee_id)
+
+        employee = self.get_employee(profile_id)
         logger.debug(f"Found employee: {employee}")
 
         start_date = make_aware(datetime(year, month, 1))
         last_day = calendar.monthrange(year, month)[1]
         end_date = make_aware(datetime(year, month, last_day, 23, 59, 59))
-
         logger.debug(f"Filtering sessions between {start_date} and {end_date}")
 
         sessions = employee.profile.worksession_set.filter(
@@ -116,7 +117,6 @@ class EmployeeMonthlySummaryPDF(APIView):
         )
 
         split_sessions = self.split_sessions_by_day(sessions)
-        
         days_in_month = [datetime(year, month, day).strftime('%Y-%m-%d') for day in range(1, last_day + 1)]
 
         sessions_by_day = {}
@@ -132,9 +132,7 @@ class EmployeeMonthlySummaryPDF(APIView):
                                 topMargin=0.5*inch, bottomMargin=0.5*inch)
         elements = []
         styles = getSampleStyleSheet()
-        normal_style = styles['Normal']
 
-        # Header Information
         total_duration = sum(
             (session["end_time"] - session["start_time"]).total_seconds() for session in split_sessions
         )
@@ -166,7 +164,6 @@ class EmployeeMonthlySummaryPDF(APIView):
         elements.append(header_table)
         elements.append(Spacer(1, 12))
 
-        # Table for sessions
         session_data = [["Date", "Start Time", "End Time", "Workplace", "Total Hours"]]
 
         for day in days_in_month:
