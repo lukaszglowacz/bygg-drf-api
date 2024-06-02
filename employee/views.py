@@ -24,7 +24,7 @@ import pytz
 logger = logging.getLogger(__name__)
 
 class EmployeeList(ListCreateAPIView):
-    queryset = Profile.objects.all()
+    queryset = Profile.objects.all().order_by('first_name')
     serializer_class = ProfileWithEmployeeSerializer
     permission_classes = [IsEmployer]
 
