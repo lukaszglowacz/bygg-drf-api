@@ -10,54 +10,47 @@ from django.db.models import Sum, F, ExpressionWrapper, fields
 from django.db.models.functions import Cast  # Importing database functions for complex queries
 
 class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
-    # Adding custom fields that are not directly a part of the Profile model but calculated or derived
     current_session_start_time = serializers.SerializerMethodField()
     current_session_status = serializers.SerializerMethodField()
     current_workplace = serializers.SerializerMethodField()
+    current_session_id = serializers.SerializerMethodField()
     user_email = serializers.SerializerMethodField()
     work_session = serializers.SerializerMethodField()
 
     class Meta:
-        model = Profile  # Specifies the model that the serializer uses
-        fields = ['id', 'full_name', 'user_email', 'personnummer', 'current_session_start_time', 'current_session_status', 'current_workplace', 'image', 'work_session']
+        model = Profile
+        fields = [
+            'id', 'full_name', 'user_email', 'personnummer', 'current_session_start_time',
+            'current_session_status', 'current_workplace', 'current_session_id', 'image', 'work_session'
+        ]
 
     def get_current_session_start_time(self, profile):
-        # Retrieve the most recent live session based on start time
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
-        # Return the start time of the session in a specific format if exists
         return session.start_time.strftime('%Y.%m.%d %H:%M') if session else None
 
     def get_current_session_status(self, profile):
-        # Retrieve the most recent live session
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
-        # Return the status of the session or a default value if no session is found
         return session.status if session else 'Nie pracuje'
     
     def get_current_workplace(self, profile):
-        # Retrieve the most recent live session
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
         if session and session.workplace:
-            # Return the address of the workplace if it exists
             return f"{session.workplace.street} {session.workplace.street_number}, {session.workplace.city}"
         return "No job"
     
+    def get_current_session_id(self, profile):
+        session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
+        return session.id if session else None
+    
     def get_user_email(self, obj):
-        # Return the email of the user associated with the profile
         return obj.user.email if obj and obj.user else None
     
     def get_work_session(self, obj):
-        # Query to retrieve all work sessions related to the profile, calculating the duration for each
         sessions = WorkSession.objects.filter(profile=obj).annotate(
             duration=ExpressionWrapper(F('end_time') - F('start_time'), output_field=fields.DurationField())
         ).values(
-            'id',
-            'workplace__street', 
-            'workplace__street_number', 
-            'workplace__postal_code', 
-            'workplace__city', 
-            'start_time', 
-            'end_time',
-            'duration'
+            'id', 'workplace__street', 'workplace__street_number', 'workplace__postal_code', 'workplace__city',
+            'start_time', 'end_time', 'duration'
         )
 
         results = []
