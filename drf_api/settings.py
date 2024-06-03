@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
 import os
+import dj_database_url
 
 if os.path.exists('env.py'):
     import env
@@ -27,7 +28,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost:5173', 'localhost:5174', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost:5173', 'localhost:5174', '127.0.0.1', 'worktime-app-api-080c4d35911e.herokuapp.com']
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -74,6 +75,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'rest_framework',
     'django_filters',
+    'dj_rest_auth.registration'
     'corsheaders',
 
     'profiles',
@@ -86,6 +88,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -122,6 +125,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',# Dla aplikacji React uruchamianej na porcie 5173
     'http://localhost:5174',# Dla aplikacji React uruchamianej na porcie 5174
     'http://127.0.0.1:8000',  # Inny dozwolony adres
+    'https://worktime-app-api-080c4d35911e.herokuapp.com'
 ]
 
 SESSION_COOKIE_SAMESITE = 'None'
@@ -134,12 +138,17 @@ CSRF_COOKIE_SECURE = True
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+if 'DEV' in os.environ:
+     DATABASES = {
+         'default': {
+             'ENGINE': 'django.db.backends.sqlite3',
+             'NAME': BASE_DIR / 'db.sqlite3',
+         }
+     }
+else:
+     DATABASES = {
+         'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+     }
 
 
 # Password validation

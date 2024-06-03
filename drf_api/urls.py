@@ -2,9 +2,11 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from profiles.views import UserRegistrationView
-from profiles.serializers import MyTokenObtainPairView 
+from profiles.serializers import MyTokenObtainPairView
+from .views import root_route
 
 urlpatterns = [
+    path('', root_route),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('profile/', include('profiles.urls')),
