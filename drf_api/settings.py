@@ -75,7 +75,7 @@ INSTALLED_APPS = [
     'cloudinary',
     'rest_framework',
     'django_filters',
-    'dj_rest_auth.registration'
+    'dj_rest_auth.registration',
     'corsheaders',
 
     'profiles',
