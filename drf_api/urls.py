@@ -1,9 +1,10 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from profiles.views import UserRegistrationView
 from profiles.serializers import MyTokenObtainPairView
-from .views import root_route
+from .views import root_route, IndexView
+
 
 urlpatterns = [
     path('', root_route),
@@ -18,4 +19,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', UserRegistrationView.as_view(), name='register'),
     path('password-reset/', include('password_reset.urls')),
+    re_path(r'^.*$', IndexView.as_view(), name='index'),
 ]
