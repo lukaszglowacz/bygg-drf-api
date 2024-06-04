@@ -1,6 +1,6 @@
+import os
 from pathlib import Path
 from datetime import timedelta
-import os
 import dj_database_url
 
 if os.path.exists('env.py'):
@@ -17,18 +17,22 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost:5173', 'localhost:5174', '127.0.0.1', 'worktime-app-api-080c4d35911e.herokuapp.com', 'worktime-app-react-d1f36baf84f7.herokuapp.com']
+ALLOWED_HOSTS = [
+    'localhost:5173', 
+    'localhost:5174', 
+    '127.0.0.1', 
+    'worktime-app-api-080c4d35911e.herokuapp.com', 
+    'worktime-app-react-d1f36baf84f7.herokuapp.com'
+]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -39,7 +43,6 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
-
     # Możesz mieć więcej ustawień zależnie od Twoich potrzeb
 }
 
@@ -105,7 +108,7 @@ ROOT_URLCONF = 'drf_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend', 'build')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -127,7 +130,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5174',# Dla aplikacji React uruchamianej na porcie 5174
     'http://127.0.0.1:8000',  # Inny dozwolony adres
     'https://worktime-app-api-080c4d35911e.herokuapp.com',
-    'https://worktime-app-react-cd9b9f8fb803.herokuapp.com',
+    'https://worktime-app-react-d1f36baf84f7.herokuapp.com',
 ]
 
 SESSION_COOKIE_SAMESITE = 'None'
@@ -135,23 +138,20 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
 
-
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 if 'DEV' in os.environ:
-     DATABASES = {
-         'default': {
-             'ENGINE': 'django.db.backends.sqlite3',
-             'NAME': BASE_DIR / 'db.sqlite3',
-         }
-     }
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 else:
-     DATABASES = {
-         'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
-     }
-
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -171,7 +171,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -185,17 +184,14 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
-
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend', 'build', 'static'),
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'frontend', 'build', 'static'),
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
