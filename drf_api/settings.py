@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['localhost:5173', 'localhost:5174', '127.0.0.1', 'worktime-app-api-080c4d35911e.herokuapp.com', 'worktime-app-react-d1f36baf84f7.herokuapp.com']
 
