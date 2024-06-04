@@ -126,7 +126,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5174',# Dla aplikacji React uruchamianej na porcie 5174
     'http://127.0.0.1:8000',  # Inny dozwolony adres
     'https://worktime-app-api-080c4d35911e.herokuapp.com',
-    'https://worktime-app-react-d1f36baf84f7.herokuapp.com'
+    'https://worktime-app-react-cd9b9f8fb803.herokuapp.com',
 ]
 
 SESSION_COOKIE_SAMESITE = 'None'
