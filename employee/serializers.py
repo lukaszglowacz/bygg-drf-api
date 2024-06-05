@@ -1,13 +1,10 @@
 from rest_framework import serializers
-from .models import Employee  # Importing the Employee model from the current app
-from profiles.models import Profile  # Importing the Profile model from the profiles app
-from livesession.models import LiveSession  # Importing the LiveSession model
-from workplace.serializers import WorkplaceSerializer  # Importing a serializer for the workplace
-from django.utils import timezone
-from datetime import timedelta
-from worksession.models import WorkSession  # Importing the WorkSession model
+from .models import Employee
+from profiles.models import Profile
+from livesession.models import LiveSession
+from workplace.serializers import WorkplaceSerializer
+from worksession.models import WorkSession
 from django.db.models import Sum, F, ExpressionWrapper, fields
-from django.db.models.functions import Cast  # Importing database functions for complex queries
 
 class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
     current_session_start_time = serializers.SerializerMethodField()
@@ -26,7 +23,7 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
 
     def get_current_session_start_time(self, profile):
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
-        return session.start_time.strftime('%Y.%m.%d %H:%M') if session else None
+        return session.start_time.isoformat() if session else None
 
     def get_current_session_status(self, profile):
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
@@ -63,8 +60,8 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
             results.append({
                 "id": session['id'],
                 "workplace": f"{session['workplace__street']} {session['workplace__street_number']}, {session['workplace__postal_code']} {session['workplace__city']}",
-                "start_time": session['start_time'].strftime('%Y.%m.%d %H:%M'),
-                "end_time": session['end_time'].strftime('%Y.%m.%d %H:%M'),
+                "start_time": session['start_time'].isoformat(),
+                "end_time": session['end_time'].isoformat(),
                 "total_time": formatted_duration
             })
     

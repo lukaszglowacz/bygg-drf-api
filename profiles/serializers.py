@@ -12,15 +12,13 @@ from django.utils.translation import gettext_lazy as _
 from django.db import transaction
 
 class ProfileSerializer(serializers.ModelSerializer):
-    # Retrieving and formatting user-related data for serialization
     user_email = serializers.EmailField(source='user.email', read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
     is_employer = serializers.BooleanField(source='user.is_employer', read_only=True)
     full_name = serializers.SerializerMethodField()
 
-    # Formatting the date and time fields to a more readable format
-    created_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M', read_only=True)
-    updated_at = serializers.DateTimeField(format='%Y-%m-%d %H:%M', read_only=True)
+    created_at = serializers.DateTimeField(format='iso-8601', read_only=True)
+    updated_at = serializers.DateTimeField(format='iso-8601', read_only=True)
 
     class Meta:
         model = Profile
@@ -28,9 +26,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
     def get_full_name(self, obj):
-        # Concatenates first and last name to form a full name
         return f"{obj.first_name} {obj.last_name}"
-    
+
 User = get_user_model()
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -66,7 +63,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This personnummer is already in use. Please use another number.")
         return value
 
-    @transaction.atomic  # Ensure atomicity of operations
+    @transaction.atomic
     def create(self, validated_data):
         user = CustomUser(
             email=validated_data['email']
@@ -82,14 +79,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         )
         return user
 
-
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        # Custom validation to include additional user information in the token payload
         email = attrs.get('email')
         password = attrs.get('password')
 
-        # Validate user credentials
         user = authenticate(username=email, password=password)
         if not user:
             if not User.objects.filter(email=email).exists():
@@ -98,7 +92,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
                 raise serializers.ValidationError({'password': _('Invalid password.')})
 
         data = super().validate(attrs)
-        data['user_id'] = user.id  # Include user ID in the token response
+        data['user_id'] = user.id
         
         if hasattr(user, 'profile'):
             data['profile_id'] = user.profile.id
