@@ -205,7 +205,7 @@ EMAIL_HOST_USER = 'bakatjur@gmail.com'
 EMAIL_HOST_PASSWORD = 'nxsx axuo ixrq dpiq'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-FRONTEND_URL = 'http://localhost:5174'
+FRONTEND_URL = 'http://localhost:5173'
 
 LOGGING = {
     'version': 1,
