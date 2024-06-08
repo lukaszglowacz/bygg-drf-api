@@ -31,7 +31,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 User = get_user_model()
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    email = serializers.CharField(required=True, validators=[EmailValidator(message="Invalid email address format.")])
+    email = serializers.CharField(required=True, validators=[EmailValidator(message="Invalid email format")])
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
     first_name = serializers.CharField(write_only=True, required=True)
     last_name = serializers.CharField(write_only=True, required=True)
@@ -43,24 +43,26 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("This email address is already in use. Please use a different address.")
+            raise serializers.ValidationError("Email already in use")
         return value
 
     def validate_password(self, value):
         regex_password = re.compile(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
         if not regex_password.match(value):
-            raise serializers.ValidationError("The password must contain at least 8 characters, one uppercase letter, one number and one special character.")
+            raise serializers.ValidationError("Password must be at least 8 characters with uppercase, number, and special character"
+)
         validate_password(value)
         return value
 
     def validate_personnummer(self, value):
-        regex = RegexValidator(regex=r'^\d{6}-\d{4}$', message='Expected personnummer format: YYMMDD-XXXX.')
+        regex = RegexValidator(regex=r'^\d{6}-\d{4}$', message='Invalid personnummer format, expected: YYMMDD-XXXX'
+)
         try:
             regex(value)
         except ValidationError:
-            raise serializers.ValidationError("Invalid personnummer format. Expected format: YYMMDD-XXXX.")
+            raise serializers.ValidationError("Invalid personnummer format, expected: YYMMDD-XXXX")
         if Profile.objects.filter(personnummer=value).exists():
-            raise serializers.ValidationError("This personnummer is already in use. Please use another number.")
+            raise serializers.ValidationError("Personnummer already in use")
         return value
 
     @transaction.atomic
@@ -87,9 +89,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         user = authenticate(username=email, password=password)
         if not user:
             if not User.objects.filter(email=email).exists():
-                raise serializers.ValidationError({'email': _('No user found with this email address.')})
+                raise serializers.ValidationError({'email': _('Email not found')})
             else:
-                raise serializers.ValidationError({'password': _('Invalid password.')})
+                raise serializers.ValidationError({'password': _('Incorrect password')})
 
         data = super().validate(attrs)
         data['user_id'] = user.id

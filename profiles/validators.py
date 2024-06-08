@@ -14,7 +14,7 @@ def validate_image_file_size(value):
     max_size = 2 * 1024 * 1024  # Set the maximum file size to 2MB.
     if value.size > max_size:
         # If the file size is greater than the maximum size, raise a ValidationError.
-        raise ValidationError(f'The image file is too large. The maximum size is {max_size/(1024*1024)}MB.')
+        raise ValidationError(f'Image too large. Max size is {max_size/(1024*1024)}MB.')
 
 def validate_image_dimensions(image):
     """
@@ -30,4 +30,4 @@ def validate_image_dimensions(image):
     width, height = get_image_dimensions(image)
     if width > max_width or height > max_height:
         # If either the width or the height exceeds their respective maxima, raise a ValidationError.
-        raise ValidationError(f'The image dimensions are too large. The maximum dimensions are {max_width}x{max_height}px.')
+        raise ValidationError(f'Image dimensions too large. Max size is {max_width}x{max_height}px.')

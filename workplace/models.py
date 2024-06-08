@@ -2,10 +2,10 @@ from django.db import models
 from django.core.validators import RegexValidator
 
 # Validator for ensuring the street number is numeric
-street_number_regex = RegexValidator(regex=r'^\d+$', message="The street number must be a number.")
+street_number_regex = RegexValidator(regex=r'^\d+$', message="Street number must be numeric")
 
 # Validator for the postal code to match specific format (e.g., '123 45')
-postal_code_regex = RegexValidator(regex=r'^\d{3}\s\d{2}$', message="Post code must be in the format 'XXX XX'.")
+postal_code_regex = RegexValidator(regex=r'^\d{3}\s\d{2}$', message="Postal code format: 'XXX XX'")
 
 class Workplace(models.Model):
     # Field to store the street name with a max length constraint

@@ -21,10 +21,10 @@ class WorkplaceListCreateView(generics.ListCreateAPIView):
         """
         if request.method == "POST":
             # Logic to handle a POST request. Should ideally be inside the post method of the view.
-            return JsonResponse({"status": "success", "message": "Workplace added"})
+            return JsonResponse({"status": "success", "message": "Workplace successfully added"})
         else:
             # Returning a JSON response for an invalid request method.
-            return JsonResponse({"status": "error", "message": "Invalid request"}, status=400)
+            return JsonResponse({"status": "error", "message": "Invalid request method"}, status=400)
 
 class WorkplaceDetailView(generics.RetrieveUpdateDestroyAPIView):
     """

@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
             'email': {
                 'required': True,
                 'error_messages': {
-                    'blank': 'Email address is required.',  # Custom error message for empty email field
+                    'blank': 'Email is required',  # Custom error message for empty email field
                 }
             },
             'password': {
@@ -21,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
                 'required': True,
                 'error_messages': {
                     'blank': 'Password is required.',  # Custom error message for empty password field
-                    'required': 'This field is mandatory.'  # Optional additional message
+                    'required': 'This field is required'  # Optional additional message
                 }
             }
         }
@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         # Check if the password matches the regex pattern
         if not regex_password.match(value):
             raise serializers.ValidationError(
-                "The password must contain at least 8 characters, one uppercase letter, one number, and one special character."
+                "Password must be at least 8 characters, including 1 uppercase letter, 1 number, and 1 special character"
             )
 
         # Additional password validation using Django's built-in tools

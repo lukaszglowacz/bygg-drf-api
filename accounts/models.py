@@ -9,7 +9,7 @@ class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         # Ensuring an email is provided, if not, raise a ValueError
         if not email:
-            raise ValueError(_('The Email field must be set'))
+            raise ValueError(_('Email is required'))
         # Normalizing the provided email.
         email = self.normalize_email(email)
         # Creating a user instance with the normalized email and extra fields.
@@ -34,7 +34,7 @@ class CustomUser(AbstractUser):
     username = None
     # Adding an email field that is unique and required.
     email = models.EmailField(_('email address'), unique=True, error_messages={
-        'unique': _("This email address is already in use. Please use a different address."),
+        'unique': _("Email is already in use. Use a different one"),
     })
     
     # Adding an 'is_employer' field to differentiate types of users (optional).

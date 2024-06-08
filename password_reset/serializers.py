@@ -13,7 +13,8 @@ class SetNewPasswordSerializer(serializers.Serializer):
         # Password complexity validation
         regex_password = re.compile(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
         if not regex_password.match(value):
-            raise serializers.ValidationError("The password must contain at least 8 characters, one uppercase letter, one number, and one special character.")
+            raise serializers.ValidationError("Password must be at least 8 characters, including 1 uppercase letter, 1 number, and 1 special character"
+)
         django_validate_password(value)
         return value
 
@@ -22,6 +23,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
         Check that the two password entries match.
         """
         if data['password'] != data['confirm_password']:
-            raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+            raise serializers.ValidationError({"confirm_password": "Passwords must match"})
         self.validate_password(data['password'])
         return data

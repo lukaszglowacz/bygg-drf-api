@@ -50,4 +50,4 @@ class WorkSession(models.Model):
         Custom validation to check that end_time is not earlier than start_time.
         """
         if self.end_time < self.start_time:
-            raise ValidationError('End time cannot be earlier than start time.')
+            raise ValidationError('End time must be after start time')

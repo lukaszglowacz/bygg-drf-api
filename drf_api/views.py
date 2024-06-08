@@ -4,5 +4,5 @@ from rest_framework.response import Response
 @api_view()
 def root_route(request):
     return Response({
-        "message": "Welcome to my WorkTime App API"
+        "message": "Welcome to the API. Powered by Lucka Baron Technology"
     })

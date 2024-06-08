@@ -59,12 +59,12 @@ class PasswordResetView(APIView):
                 logger.info("Email sent successfully")
             else:
                 logger.info(f"No user found with email: {email}")
-                return Response({'email': ['No user found with this email address.']}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'email': ['Email address not found']}, status=status.HTTP_400_BAD_REQUEST)
 
-            return Response({'message': 'Password reset link sent.'}, status=status.HTTP_200_OK)
+            return Response({'message': 'Password reset link sent'}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Error during password reset: {e}", exc_info=True)
-            return Response({'error': 'An error occurred during password reset.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Error during password reset'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PasswordResetConfirmView(APIView):
@@ -86,13 +86,13 @@ class PasswordResetConfirmView(APIView):
                 serializer.is_valid(raise_exception=True)
                 user.set_password(serializer.validated_data['password'])
                 user.save()
-                return Response({'message': 'Password has been reset.'}, status=status.HTTP_200_OK)
+                return Response({'message': 'Password reset successfully'}, status=status.HTTP_200_OK)
             except Exception as e:
                 logger.error(f"Error saving new password: {e}", exc_info=True)
-                return Response({'error': 'An error occurred while resetting the password.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'error': 'Error resetting password'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             logger.error(f"Invalid link for password reset: UID={uidb64}, Token={token}")
-            return Response({'error': 'Invalid link'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid reset link'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -109,8 +109,8 @@ class ChangePasswordView(APIView):
         new_password = request.data.get('new_password')
 
         if not user.check_password(old_password):
-            return Response({"old_password": ["Old password is not correct."]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"old_password": ["Incorrect old password"]}, status=status.HTTP_400_BAD_REQUEST)
 
         user.set_password(new_password)
         user.save()
-        return Response({"detail": "Password has been changed."}, status=status.HTTP_200_OK)
+        return Response({"detail": "Password changed successfully"}, status=status.HTTP_200_OK)
