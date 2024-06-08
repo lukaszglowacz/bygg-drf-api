@@ -46,8 +46,7 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
         sessions = WorkSession.objects.filter(profile=obj).annotate(
             duration=ExpressionWrapper(F('end_time') - F('start_time'), output_field=fields.DurationField())
         ).values(
-            'id', 'workplace__street', 'workplace__street_number', 'workplace__postal_code', 'workplace__city',
-            'start_time', 'end_time', 'duration'
+            'id', 'workplace_id', 'start_time', 'end_time', 'duration'
         )
 
         results = []
@@ -59,10 +58,11 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
 
             results.append({
                 "id": session['id'],
-                "workplace": f"{session['workplace__street']} {session['workplace__street_number']}, {session['workplace__postal_code']} {session['workplace__city']}",
+                "workplace": session['workplace_id'],
                 "start_time": session['start_time'].isoformat(),
                 "end_time": session['end_time'].isoformat(),
                 "total_time": formatted_duration
             })
-    
+
         return results
+
