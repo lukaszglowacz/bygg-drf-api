@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost:5173', 'localhost:5174', '127.0.0.1', 'worktime-app-api-080c4d35911e.herokuapp.com', 'worktime-app-react-d1f36baf84f7.herokuapp.com']
+ALLOWED_HOSTS = ['0.0.0.0','localhost:5173', 'localhost:5174', '127.0.0.1', 'worktime-app-api-080c4d35911e.herokuapp.com', 'worktime-app-react-d1f36baf84f7.herokuapp.com', '192.168.0.69', 'localhost', '192.168.0.84']
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -121,12 +121,17 @@ WSGI_APPLICATION = 'drf_api.wsgi.application'
 
 CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',# Dla aplikacji React uruchamianej na porcie 5173
     'http://localhost:5174',# Dla aplikacji React uruchamianej na porcie 5174
     'http://127.0.0.1:8000',  # Inny dozwolony adres
     'https://worktime-app-api-080c4d35911e.herokuapp.com',
     'https://worktime-app-react-cd9b9f8fb803.herokuapp.com',
+    'http://192.168.0.69:8000',
+    'http://192.168.0.84:3000',
 ]
 
 SESSION_COOKIE_SAMESITE = 'None'
