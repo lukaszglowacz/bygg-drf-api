@@ -32,8 +32,8 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
     def get_current_workplace(self, profile):
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
         if session and session.workplace:
-            return f"{session.workplace.street} {session.workplace.street_number}, {session.workplace.city}"
-        return "No job"
+            return WorkplaceSerializer(session.workplace).data
+        return None
     
     def get_current_session_id(self, profile):
         session = LiveSession.objects.filter(profile=profile).order_by('-start_time').first()
@@ -45,24 +45,21 @@ class ProfileWithEmployeeSerializer(serializers.ModelSerializer):
     def get_work_session(self, obj):
         sessions = WorkSession.objects.filter(profile=obj).annotate(
             duration=ExpressionWrapper(F('end_time') - F('start_time'), output_field=fields.DurationField())
-        ).values(
-            'id', 'workplace_id', 'start_time', 'end_time', 'duration'
-        )
+        ).select_related('workplace')
 
         results = []
         for session in sessions:
-            duration = session['duration']
+            duration = session.duration
             hours, remainder = divmod(duration.total_seconds(), 3600)
             minutes = (remainder % 3600) // 60
             formatted_duration = f"{int(hours)} h, {int(minutes)} min"
 
             results.append({
-                "id": session['id'],
-                "workplace": session['workplace_id'],
-                "start_time": session['start_time'].isoformat(),
-                "end_time": session['end_time'].isoformat(),
+                "id": session.id,
+                "workplace": WorkplaceSerializer(session.workplace).data,
+                "start_time": session.start_time.isoformat(),
+                "end_time": session.end_time.isoformat(),
                 "total_time": formatted_duration
             })
 
         return results
-
