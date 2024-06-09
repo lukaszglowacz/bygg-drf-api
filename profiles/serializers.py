@@ -64,6 +64,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if Profile.objects.filter(personnummer=value).exists():
             raise serializers.ValidationError("Personnummer already in use")
         return value
+    
+    def validate(self, attrs):
+        attrs['first_name'] = attrs['first_name'].capitalize()
+        attrs['last_name'] = attrs['last_name'].capitalize()
+        return attrs
 
     @transaction.atomic
     def create(self, validated_data):

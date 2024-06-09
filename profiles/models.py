@@ -32,6 +32,11 @@ class Profile(models.Model):
     def full_name(self):
         # A convenience property to get the full name of the user
         return f"{self.first_name} {self.last_name}"
+    
+    def save(self, *args, **kwargs):
+        self.first_name = self.first_name.capitalize()
+        self.last_name = self.last_name.capitalize()
+        super(Profile, self).save(*args, **kwargs)
 
     def __str__(self):
         # The string representation of the object, which is helpful for admin and debugging purposes
